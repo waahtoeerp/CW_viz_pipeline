@@ -296,6 +296,7 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
         })
 
     nav_docs = [
+        {"label": "Report Guide", "file": "../report-guide.html"},
         {"label": "Pipeline", "file": "../pipeline.html"},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
