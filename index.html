@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Coffee Wrecks — Genomic Report</title>
+<style>
+  :root {
+    --accent: #fed95e;
+    --bg: #f2e9dc;
+    --bg2: #ffffff;
+    --text-primary: #211d16;
+    --text-secondary: #6b6459;
+    --border: rgba(33,29,22,0.12);
+    --font-header: 'Times New Roman', Times, serif;
+    --font-body: Arial, Helvetica, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 56px 24px 40px;
+  }
+  header.masthead {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  header.masthead img.logo-main {
+    max-width: 480px;
+    width: 100%;
+    height: auto;
+  }
+  h1 {
+    font-family: var(--font-header);
+    font-size: 30px;
+    font-weight: 400;
+    margin: 8px 0 4px;
+  }
+  .lede {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 620px;
+    margin: 0 auto 8px;
+    line-height: 1.6;
+  }
+  .accent-rule {
+    height: 4px;
+    width: 72px;
+    background: var(--accent);
+    margin: 20px auto 0;
+    border-radius: 2px;
+  }
+  section.intro {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+  section.intro h2 {
+    font-family: var(--font-header);
+    font-weight: 400;
+    font-size: 19px;
+    margin: 0 0 12px;
+  }
+  h2.section-title {
+    font-family: var(--font-header);
+    font-weight: 400;
+    font-size: 20px;
+    margin: 0 0 16px;
+  }
+  .sample-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  a.sample-card {
+    display: block;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s, transform .15s;
+  }
+  a.sample-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  a.sample-card .sample-id {
+    font-family: var(--font-header);
+    font-size: 17px;
+  }
+  a.sample-card .sample-status {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: #6b5300;
+  }
+  a.sample-card.pending {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  a.sample-card.pending .sample-status {
+    background: var(--border);
+    color: var(--text-secondary);
+  }
+  footer {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  footer img.logo-compass {
+    width: 90px;
+    height: auto;
+    opacity: 0.85;
+  }
+  footer .caption {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <img class="logo-main" src="theme/logo-main.png" alt="The Coffee Wrecks">
+    <h1>Ancient-DNA Genomic Report</h1>
+    <p class="lede">Sequencing analysis of degraded coffee-bean DNA samples against the
+      <em>Coffea arabica</em> reference genome.</p>
+    <div class="accent-rule"></div>
+  </header>
+
+  <section class="intro">
+    <h2>About this report</h2>
+    <p>This report summarizes the bioinformatics pipeline results for each sample: variant
+      calls, per-contig coverage, and local read depth around called SNPs. Select a sample
+      below to view its full breakdown.</p>
+  </section>
+
+  <h2 class="section-title">Samples</h2>
+  <div class="sample-grid">
+    <a class="sample-card" href="viz-data/CT600-007R0002_snp_viz.html">
+      <div class="sample-id">CT600-007R0002</div>
+      <span class="sample-status">Ready</span>
+    </a>
+    <a class="sample-card" href="viz-data/CT600-007R0003_snp_viz.html">
+      <div class="sample-id">CT600-007R0003</div>
+      <span class="sample-status">Ready</span>
+    </a>
+    <a class="sample-card" href="viz-data/CT600-007R0004_snp_viz.html">
+      <div class="sample-id">CT600-007R0004</div>
+      <span class="sample-status">Ready</span>
+    </a>
+    <a class="sample-card" href="viz-data/CT600-007R0005_snp_viz.html">
+      <div class="sample-id">CT600-007R0005</div>
+      <span class="sample-status">Ready</span>
+    </a>
+  </div>
+
+  <h2 class="section-title">Documentation</h2>
+  <div class="sample-grid">
+    <a class="sample-card" href="pipeline.html">
+      <div class="sample-id">Pipeline Run Order</div>
+      <span class="sample-status">Docs</span>
+    </a>
+    <a class="sample-card" href="file-chart.html">
+      <div class="sample-id">Simple File Chart</div>
+      <span class="sample-status">Docs</span>
+    </a>
+  </div>
+
+  <footer>
+    <img class="logo-compass" src="theme/logo-compass.png" alt="The Coffee Wrecks Project compass mark">
+    <p class="caption">The Coffee Wrecks Project</p>
+  </footer>
+
+</div>
+</body>
+</html>

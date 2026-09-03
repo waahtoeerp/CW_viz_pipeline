@@ -27,6 +27,8 @@ import sys
 import urllib.request
 import urllib.error
 
+KNOWN_SAMPLES = ["CT600-007R0002", "CT600-007R0003", "CT600-007R0004", "CT600-007R0005"]
+
 CHROMOSOME_MIN_LEN = 5_000_000  # NC_ contigs at/above this are treated as nuclear chromosomes
 CLUSTER_WINDOW_BP = 3000        # SNPs within this distance of a neighbor join the same cluster
 ZOOM_PADDING_BP = 1500          # extra context on each side of a zoom window
@@ -34,15 +36,12 @@ GENE_FETCH_PADDING_BP = 2000
 NCBI_EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
 
-def find_sample(viz_dir):
-    snp_files = glob.glob(os.path.join(viz_dir, "*_snps.tsv"))
+def find_samples(viz_dir):
+    snp_files = sorted(glob.glob(os.path.join(viz_dir, "*_snps.tsv")))
     if not snp_files:
         sys.exit(f"No *_snps.tsv found in {viz_dir} — run extract_snp_viz_data.sh first "
                   f"and copy its output here.")
-    if len(snp_files) > 1:
-        print(f"Multiple samples found in {viz_dir}, using {snp_files[0]}", file=sys.stderr)
-    base = os.path.basename(snp_files[0])
-    return base[: -len("_snps.tsv")]
+    return [os.path.basename(f)[: -len("_snps.tsv")] for f in snp_files]
 
 
 def parse_contigs(path):
@@ -212,13 +211,23 @@ def fetch_gene_annotations(chrom, window):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--viz-data-dir", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "viz-data"))
-    ap.add_argument("--out", default=None)
+    ap.add_argument("--sample", default=None, help="build only this sample instead of every sample found")
+    ap.add_argument("--out", default=None, help="output path (only valid with --sample)")
     ap.add_argument("--no-network", action="store_true", help="skip fetching NCBI gene annotations")
     args = ap.parse_args()
 
     viz_dir = args.viz_data_dir
-    sample = find_sample(viz_dir)
-    print(f"Sample: {sample}")
+    if args.out and not args.sample:
+        sys.exit("--out only makes sense together with --sample")
+
+    samples = [args.sample] if args.sample else find_samples(viz_dir)
+    print(f"Samples: {', '.join(samples)}")
+    for sample in samples:
+        build_sample(sample, viz_dir, args.no_network, args.out)
+
+
+def build_sample(sample, viz_dir, no_network, out_override=None):
+    print(f"--- Sample: {sample} ---")
 
     contigs = parse_contigs(os.path.join(viz_dir, f"{sample}_coverage_by_contig.txt"))
     snps = parse_snps(os.path.join(viz_dir, f"{sample}_snps.tsv"))
@@ -248,7 +257,7 @@ def main():
                             snps, extra_span=span // 2)
         zoom2["title"] = f"Zoom — densest SNP cluster ({len(cluster)} SNPs on {cluster[0]['chrom']})"
 
-    if not args.no_network:
+    if not no_network:
         print("Fetching NCBI gene annotations for zoom windows...")
         zoom1["genes"] = fetch_gene_annotations(zoom1["chrom"], zoom1["window"])
         if zoom2:
@@ -277,8 +286,24 @@ def main():
     n_pass = sum(1 for s in snps if s["filter"] == "PASS")
     main_depth = (sum(c["meandepth"] for c in chromosomes) / len(chromosomes)) if chromosomes else 0.0
 
+    nav_samples = []
+    for s in KNOWN_SAMPLES:
+        nav_samples.append({
+            "id": s,
+            "file": f"{s}_snp_viz.html",
+            "current": s == sample,
+            "ready": os.path.exists(os.path.join(viz_dir, f"{s}_snps.tsv")),
+        })
+
+    nav_docs = [
+        {"label": "Pipeline", "file": "../pipeline.html"},
+        {"label": "File Chart", "file": "../file-chart.html"},
+    ]
+
     data = {
         "sample": sample,
+        "nav_samples": nav_samples,
+        "nav_docs": nav_docs,
         "main_chr": chromosomes,
         "organelles": organelles,
         "scaffolds": scaffolds,
@@ -295,7 +320,7 @@ def main():
         },
     }
 
-    out_path = args.out or os.path.join(viz_dir, f"{sample}_snp_viz.html")
+    out_path = out_override or os.path.join(viz_dir, f"{sample}_snp_viz.html")
     html = render_html(data)
     with open(out_path, "w") as f:
         f.write(html)
@@ -315,44 +340,31 @@ TEMPLATE = """<!doctype html>
 <style>
 .viz-root {
   color-scheme: light;
-  --surface-1:      #fcfcfb;
-  --page:           #f9f9f7;
-  --text-primary:   #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted:     #898781;
-  --gridline:       #e1e0d9;
-  --baseline:       #c3c2b7;
-  --border:         rgba(11,11,11,0.10);
+  --font-header:    'Times New Roman', Times, serif;
+  --font-body:      Arial, Helvetica, sans-serif;
+  --accent:         #fed95e;
+  --surface-1:      #ffffff;
+  --page:           #f2e9dc;
+  --text-primary:   #211d16;
+  --text-secondary: #6b6459;
+  --text-muted:     #8a8073;
+  --gridline:       #e4dbcb;
+  --baseline:       #cdc3b0;
+  --border:         rgba(33,29,22,0.12);
   --series-1:       #2a78d6;
   --series-1-wash:  rgba(42,120,214,0.10);
   --good:           #0ca30c;
   --warning:        #fab219;
   --critical:       #d03b3b;
 }
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) .viz-root {
-    color-scheme: dark;
-    --surface-1: #1a1a19; --page: #0d0d0d; --text-primary:#fff; --text-secondary:#c3c2b7;
-    --text-muted:#898781; --gridline:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
-    --series-1:#3987e5; --series-1-wash:rgba(57,135,229,0.14);
-    --good:#0ca30c; --warning:#fab219; --critical:#e66767;
-  }
-}
-:root[data-theme="dark"] .viz-root {
-  color-scheme: dark;
-  --surface-1: #1a1a19; --page: #0d0d0d; --text-primary:#fff; --text-secondary:#c3c2b7;
-  --text-muted:#898781; --gridline:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
-  --series-1:#3987e5; --series-1-wash:rgba(57,135,229,0.14);
-  --good:#0ca30c; --warning:#fab219; --critical:#e66767;
-}
-.viz-root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--page);
+.viz-root { font-family: var(--font-body); background: var(--page);
   color: var(--text-primary); padding: 32px 20px 80px; min-height: 100vh; box-sizing: border-box; }
 .wrap { max-width: 1080px; margin: 0 auto; }
-h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+h1 { font-family: var(--font-header); font-weight: 400; font-size: 26px; margin: 0 0 4px; }
 .subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 24px; }
 .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px 22px; margin-bottom: 20px; overflow-x: auto; }
-.card h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+.card h2 { font-family: var(--font-header); font-weight: 400; font-size: 18px; margin: 0 0 4px; }
 .card .desc { color: var(--text-secondary); font-size: 13px; margin: 0 0 16px; max-width: 680px; }
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .stat-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
@@ -387,17 +399,35 @@ table.snp-table tbody tr:hover { background: var(--series-1-wash); }
 .filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .filter-btn { font: inherit; font-size: 12.5px; cursor: pointer; border: 1px solid var(--gridline);
   background: var(--surface-1); color: var(--text-secondary); border-radius: 999px; padding: 6px 14px; }
-.filter-btn.active { border-color: var(--series-1); color: var(--text-primary); background: var(--series-1-wash); }
+.filter-btn.active { border-color: var(--accent); color: var(--text-primary); background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.accent-rule { height: 4px; width: 60px; background: var(--accent); margin: 0 0 24px; border-radius: 2px; }
 .callout-note { font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
 footer.credits { color: var(--text-muted); font-size: 11.5px; margin-top: 8px; line-height: 1.6; }
+.site-ribbon { display: flex; align-items: center; gap: 20px; background: #ffffff;
+  border-bottom: 1px solid rgba(33,29,22,0.12); padding: 8px 24px; position: sticky; top: 0; z-index: 50; }
+.site-ribbon .ribbon-home { display: flex; align-items: center; }
+.site-ribbon .ribbon-home img { height: 32px; width: auto; display: block; }
+.site-ribbon .ribbon-links { display: flex; gap: 6px; flex-wrap: wrap; font-family: var(--font-body); font-size: 13px; }
+.site-ribbon .ribbon-links a { text-decoration: none; padding: 6px 14px; border-radius: 999px; color: #6b6459; }
+.site-ribbon .ribbon-links a:hover { background: rgba(33,29,22,0.06); }
+.site-ribbon .ribbon-links a.current { background: #fed95e; color: #4a3900; font-weight: bold; }
+.site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
+.site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: rgba(33,29,22,0.12); margin: 4px 2px; }
 </style>
 </head>
 <body>
+<nav class="site-ribbon">
+  <a class="ribbon-home" href="../index.html" title="Back to front page">
+    <img src="../theme/logo-compass.png" alt="The Coffee Wrecks — back to front page">
+  </a>
+  <div class="ribbon-links" id="ribbon-links"></div>
+</nav>
 <div class="viz-root">
 <div class="wrap">
   <h1>SNP &amp; coverage overview</h1>
   <p class="subtitle mono" id="subtitle"></p>
+  <div class="accent-rule"></div>
   <div class="stat-row" id="stat-row"></div>
   <div class="banner" id="banner"></div>
 
@@ -495,6 +525,37 @@ footer.credits { color: var(--text-muted); font-size: 11.5px; margin-top: 8px; l
   }
 
   document.getElementById('subtitle').textContent = 'Sample ' + data.sample;
+
+  (function ribbon(){
+    const wrap = document.getElementById('ribbon-links');
+    const home = document.createElement('a');
+    home.href = '../index.html';
+    home.textContent = 'Front page';
+    wrap.appendChild(home);
+    data.nav_samples.forEach(function(s){
+      const a = document.createElement('a');
+      a.textContent = s.id;
+      if (s.current) {
+        a.className = 'current';
+        a.href = '#';
+      } else if (s.ready) {
+        a.href = s.file;
+      } else {
+        a.className = 'pending';
+        a.href = '#';
+      }
+      wrap.appendChild(a);
+    });
+    const divider = document.createElement('div');
+    divider.className = 'ribbon-divider';
+    wrap.appendChild(divider);
+    data.nav_docs.forEach(function(d){
+      const a = document.createElement('a');
+      a.textContent = d.label;
+      a.href = d.file;
+      wrap.appendChild(a);
+    });
+  })();
 
   (function stats(){
     const row = document.getElementById('stat-row');

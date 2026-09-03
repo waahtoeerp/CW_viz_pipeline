@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline Run Order — The Coffee Wrecks</title>
+<style>
+:root {
+  --font-header:    'Times New Roman', Times, serif;
+  --font-body:      Arial, Helvetica, sans-serif;
+  --accent:         #fed95e;
+  --surface-1:      #ffffff;
+  --page:           #f2e9dc;
+  --text-primary:   #211d16;
+  --text-secondary: #6b6459;
+  --text-muted:     #8a8073;
+  --gridline:       #e4dbcb;
+  --border:         rgba(33,29,22,0.12);
+  --link:           #7a5f00;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font-family: var(--font-body); }
+.site-ribbon { display: flex; align-items: center; gap: 20px; background: #ffffff;
+  border-bottom: 1px solid var(--border); padding: 8px 24px; position: sticky; top: 0; z-index: 50; }
+.site-ribbon .ribbon-home { display: flex; align-items: center; }
+.site-ribbon .ribbon-home img { height: 32px; width: auto; display: block; }
+.site-ribbon .ribbon-links { display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; }
+.site-ribbon .ribbon-links a { text-decoration: none; padding: 6px 14px; border-radius: 999px; color: var(--text-secondary); }
+.site-ribbon .ribbon-links a:hover { background: rgba(33,29,22,0.06); }
+.site-ribbon .ribbon-links a.current { background: var(--accent); color: #4a3900; font-weight: bold; }
+.site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
+.site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: var(--border); margin: 4px 2px; }
+.page { max-width: 900px; margin: 0 auto; padding: 36px 24px 80px; }
+h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28px; margin: 0 0 4px; }
+.accent-rule { height: 4px; width: 60px; background: var(--accent); margin: 0 0 24px; border-radius: 2px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; overflow-x: auto; }
+.markdown-body h1 { font-family: var(--font-header); font-weight: 400; font-size: 22px; margin: 28px 0 12px; }
+.markdown-body h1:first-child { margin-top: 0; }
+.markdown-body h2 { font-family: var(--font-header); font-weight: 400; font-size: 19px; margin: 26px 0 10px; }
+.markdown-body h3 { font-family: var(--font-header); font-weight: 400; font-size: 16px; margin: 22px 0 8px; }
+.markdown-body p, .markdown-body li { font-size: 14px; line-height: 1.7; color: var(--text-primary); }
+.markdown-body ul, .markdown-body ol { padding-left: 22px; }
+.markdown-body li { margin-bottom: 6px; }
+.markdown-body a { color: var(--link); }
+.markdown-body code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent); padding: 1px 5px; border-radius: 4px; }
+.markdown-body pre { background: #211d16; color: #f2e9dc; padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+.markdown-body pre code { background: none; color: inherit; padding: 0; }
+.markdown-body table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 13px; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--gridline); padding: 8px 10px; text-align: left; vertical-align: top; }
+.markdown-body th { background: color-mix(in srgb, var(--accent) 25%, transparent); font-weight: bold; }
+.markdown-body hr { border: none; border-top: 1px solid var(--gridline); margin: 24px 0; }
+.markdown-body pre.mermaid { background: var(--surface-1); border: 1px solid var(--gridline); padding: 20px; text-align: center; }
+</style>
+</head>
+<body>
+<nav class="site-ribbon">
+  <a class="ribbon-home" href="index.html" title="Back to front page">
+    <img src="theme/logo-compass.png" alt="The Coffee Wrecks — back to front page">
+  </a>
+  <div class="ribbon-links" id="ribbon-links"></div>
+</nav>
+<div class="page">
+  <h1 class="doc-title">Pipeline Run Order</h1>
+  <div class="accent-rule"></div>
+  <div class="card">
+    <div class="markdown-body" id="markdown-body"></div>
+  </div>
+</div>
+
+<script type="application/json" id="page-data">{"markdown": "# Pipeline run order\n\nLast verified against the scripts on disk: 2026-08-23.\n\n```mermaid\nflowchart TD\n    S[\"setup_reference.sh\\nfaidx + dict + bwa index\"] -.-> REF[\"ref_gen/*.fna (indexed)\"]\n    Z[\"vrouw_maria_fastqc_job.sh\\n(independent QC)\"] -.-> RAW[\"vrouw_maria_2026_segments/*.fq.gz\"]\n    REF --> A[\"bwa-vrouw.sh\"]\n    RAW --> A\n    A --> B[\"bwa-out/SAMPLE_sorted.bam\"]\n    B --> G[\"add_readgroups.sh\"]\n    G --> H[\"bwa-out/SAMPLE_sorted_RG.bam\"]\n    H --> C[\"mapDamage_vrouw_maria.sh\\nMarkDuplicates + damage assessment\"]\n    C --> D[\"bwa-out/SAMPLE_dedup.bam\"]\n    D --> E[\"mapDamage_rescale.sh\"]\n    E --> F[\"mapDamage-out/SAMPLE_mapDamage_dedup/\\nSAMPLE_dedup.rescaled.bam (indexed)\"]\n    REF --> I\n    F --> I[\"gatk_hc.sh\"]\n    I --> J[\"gatk-out/SAMPLE.g.vcf.gz\"]\n    J --> K[\"genotype_gvcf.sh\"]\n    K --> L[\"gatk-out/SAMPLE.vcf.gz\"]\n    L --> M[\"gatk-filter.sh\"]\n    M --> N[\"gatk-out/SAMPLE_filtered.vcf.gz\"]\n    N --> O[\"visualization/vcf_stats.sh\\n(manual \u2014 not in run_pipeline.sh, see below)\"]\n    O --> P[\"visualization/vcf-stats-out/SAMPLE_stats.txt\\n+ SAMPLE_plots/plot.py\"]\n    P --> Q[\"visualization/vcf_plot.sh\"]\n    Q --> R[\"Final rendered plots\"]\n    N --> X[\"visualization/extract_snp_viz_data.sh\\n(manual \u2014 not in run_pipeline.sh)\"]\n    F --> X\n    X --> Y[\"visualization/viz-data/*.tsv, *.txt\"]\n    Y --> W[\"visualization/build_snp_viz.py\\n(manual)\"]\n    W --> V[\"visualization/viz-data/SAMPLE_snp_viz.html\"]\n```\n\n| # | Script | Reads | Writes | Notes |\n|---|--------|-------|--------|-------|\n| 1 | `setup_reference.sh` | `ref_gen/*.fna` | `.fai`, `.dict`, `.bwt`/`.pac`/`.ann`/`.amb`/`.sa` | One-time reference prep. `bwa index` now lives here (moved 2026-08-21) instead of running inside every `bwa-vrouw.sh` submission. `run_pipeline.sh` gates both `bwa-vrouw.sh` and `gatk_hc.sh` on this job via `--dependency=afterok`. |\n| 2 | `vrouw_maria_fastqc_job.sh` | `vrouw_maria_2026_segments/*.fq.gz` | `fastqc-out/` | QC-only, independent branch \u2014 nothing downstream consumes it. |\n| 3 | `bwa-vrouw.sh` | `ref_gen/*.fna` (indexed by row 1), `vrouw_maria_2026_segments/*_1.fq.gz`/`_2.fq.gz` | `bwa-out/${SAMPLE}_sorted.bam` (+ `.sai`, `.bai`) | Uses `bwa aln`/`sampe` (backtrack algorithm), the standard choice for short/damaged aDNA reads over `bwa mem`. Now requires row 1 to have completed \u2014 enforced via SLURM dependency in `run_pipeline.sh`. |\n| 4 | `add_readgroups.sh` | `bwa-out/${SAMPLE}_sorted.bam` | `bwa-out/${SAMPLE}_sorted_RG.bam` | Picard `AddOrReplaceReadGroups`. Moved here (before dedup) 2026-08-22 \u2014 Picard's `MarkDuplicates` (row 5) requires `@RG`-tagged input and throws a `NullPointerException` without it; `bwa aln`/`sampe` never adds RG. RG fields (`RGID=1`, `RGPU=unit1`, etc.) are hardcoded placeholders \u2014 fine for one sample/one lane, will need to vary per-sample once public comparison accessions are added. |\n| 5 | `mapDamage_vrouw_maria.sh` | `bwa-out/${SAMPLE}_sorted_RG.bam` | `bwa-out/${SAMPLE}_dedup.bam` + dup metrics; `mapDamage-out/${SAMPLE}_mapDamage/` | Picard `MarkDuplicates` runs here. Damage-pattern assessment (`mapDamage`, no `--rescale`) runs on the **pre-dedup** RG-tagged BAM, not the dedup one. |\n| 6 | `mapDamage_rescale.sh` | `bwa-out/${SAMPLE}_dedup.bam` | `mapDamage-out/${SAMPLE}_mapDamage_dedup/${SAMPLE}_dedup.rescaled.bam` (indexed) | Reruns `mapDamage --rescale` on the deduped BAM to downweight likely-damaged bases in quality scores. RG tags carry through automatically from row 4 (Picard/mapDamage preserve `@RG` header lines). Now indexes its own output (added 2026-08-22) since it feeds `gatk_hc.sh` directly. |\n| 7 | `gatk_hc.sh` | `mapDamage-out/${SAMPLE}_mapDamage_dedup/${SAMPLE}_dedup.rescaled.bam`, indexed ref (row 1) | `gatk-out/${SAMPLE}.g.vcf.gz` | HaplotypeCaller in GVCF mode. Depends on both row 1 (ref) and row 6 (rescaled BAM). |\n| 8 | `genotype_gvcf.sh` | `gatk-out/${SAMPLE}.g.vcf.gz` | `gatk-out/${SAMPLE}.vcf.gz` | Fine. |\n| 9 | `gatk-filter.sh` | `gatk-out/${SAMPLE}.vcf.gz` | `gatk-out/${SAMPLE}_filtered.vcf.gz` | Hard filters on QD/FS/MQ/DP. Fine. |\n| 10 | `visualization/vcf_stats.sh` | `gatk-out/${SAMPLE}_filtered.vcf.gz` | `visualization/vcf-stats-out/${SAMPLE}_stats.txt`, `${SAMPLE}_plots/` (incl. `plot.py`) | `bcftools stats` + `plot-vcfstats -P` (the `-P` skips PDF generation \u2014 no `pdflatex`/`tectonic` on Roihu). **Run directly on the Roihu login node** (`./vcf_stats.sh SAMPLE`), not via `sbatch` \u2014 it's the extraction half of a Roihu/local split; `SAMPLE` is `$1`. |\n| 11 | `visualization/vcf_plot.sh` | `visualization/vcf-stats-out/${SAMPLE}_plots/plot.py` | rendered plots | **Runs entirely on a local machine**, not Roihu \u2014 needs `plot.py` and the `.dat`/`.png` files from row 10 copied down first. `SAMPLE` is `$1`. Not something this assistant edits/runs from a Roihu session. |\n| 12 | `visualization/extract_snp_viz_data.sh` | `gatk-out/${SAMPLE}_filtered.vcf.gz`, `mapDamage-out/${SAMPLE}_mapDamage_dedup/${SAMPLE}_dedup.rescaled.bam` | `visualization/viz-data/${SAMPLE}_snps.tsv`, `${SAMPLE}_coverage_by_contig.txt`, `${SAMPLE}_snp_local_depth.tsv` | Pulls small SNP/coverage/depth extracts for visualization. Needs rows 6 and 9. **Run directly on the Roihu login node**, not via `sbatch` \u2014 same reasoning as row 10 (`SAMPLE` is `$1`). |\n| 13 | `visualization/build_snp_viz.py` | `visualization/viz-data/*.tsv`, `*.txt` (row 12) | `visualization/viz-data/${SAMPLE}_snp_viz.html` | Builds a standalone interactive HTML page (SNP table, coverage, zoomed depth around top loci; optional NCBI gene annotation, needs network access). **Runs on a local machine**, same as row 11. Its `--viz-data-dir` default is computed relative to the script's own location. Currently single-sample only (`find_sample()` picks the first `*_snps.tsv` found and ignores the rest) \u2014 needs a multi-sample rewrite for the planned per-sample-tab dashboard. |\n\n## Known open issues (not fixed in this pass)\n- Row 4: read-group fields are single-sample placeholders \u2014 revisit when public Typica/Bourbon comparison accessions are added to the pipeline.\n- Row 13: `build_snp_viz.py` needs a multi-sample rewrite (one dashboard, per-sample tab/sidebar nav) \u2014 deferred to a local-machine session.\n\n## Recently fixed\n- 2026-09-03: `/scratch/project_2019675` filled to 100% (250G/250G, 0 free) \u2014 `bwa-out/` alone was 171GB because every stage of the alignment chain (`.sai` \u2192 `_sorted.bam` \u2192 `_sorted_RG.bam` \u2192 `_dedup.bam`) keeps a full ~13GB copy, none of it cleaned up once superseded. This is what actually caused R0003/R0004's `MarkDuplicates` to fail (`IOException: Disk quota exceeded`, 99% of the way through writing \u2014 a real failure, correctly caught by `set -e` this time, unlike the earlier masked failures). Fix: for samples that reached the final rescaled BAM (R0002, R0005), deleted the now-redundant `.sai`/`_sorted.bam`/`_sorted_RG.bam`/`_dedup.bam` (~38GB/sample) \u2014 nothing downstream reads them, only `mapDamage-out/.../*.rescaled.bam` and the `gatk-out/*.vcf.gz` files are load-bearing. Freed ~76GB (`df` needed ~15s to catch up \u2014 Lustre quota-accounting lag). R0003/R0004's truncated `_dedup.bam` (confirmed via `samtools quickcheck`) deleted and dedup resubmitted directly (not via `run_pipeline.sh`, to avoid redoing the still-valid `_sorted_RG.bam`). **Not a one-time fix** \u2014 this will recur as more samples/reruns accumulate; worth deciding on a real cleanup policy (auto-delete superseded intermediates per stage?) rather than manual cleanup each time.\n- 2026-09-03: `visualization/vcf_stats.sh` and `extract_snp_viz_data.sh` were written as `sbatch` job scripts but should run directly on the Roihu login node instead (lightweight, and `vcf_plot.sh`/`build_snp_viz.py` \u2014 the actual plotting \u2014 run on a local machine, not Roihu, so there was never a reason for the extraction half to go through the SLURM queue). Stripped their `#SBATCH` directives; `vcf_stats.sh` also gained `plot-vcfstats -P` (see row 10).\n- 2026-08-23: `bwa-vrouw.sh` hit its 12h `--time` limit for `CT600-007R0003`/`R0004` (killed mid-`samtools sort`, cascading to cancel everything downstream) when all 3 remaining samples' chains ran concurrently \u2014 likely cluster contention, since R0002 took 6h24m running mostly alone earlier but R0005 still took 10h30m even in parallel. Both `bwa aln` steps (the actual time sink) had already finished by the time of the kill; only the fast `sampe`/`sort` tail was lost. Fixed: bumped the time limit to 24h, made the `bwa aln` steps skip themselves if their `.sai` output already exists (so a resubmission doesn't repeat hours of already-done alignment work \u2014 simple existence check, not a completeness check; delete a `.sai` and rerun if a future timeout happens *during* `bwa aln` itself rather than after). The two truncated `_sorted.bam` files were confirmed corrupt via `samtools quickcheck` (\"missing EOF block\") and deleted before resubmitting.\n- 2026-08-23: Base pipeline (rows 1, 3\u20139) generalized to all 4 samples \u2014 every per-sample script takes `SAMPLE` as `$1`; `run_pipeline.sh` submits `setup_reference.sh`/`vrouw_maria_fastqc_job.sh` once (sample-independent) then loops per-sample parallel chains, and accepts optional sample names on the CLI (`./run_pipeline.sh R0003 R0004`) to target a subset instead of redoing already-completed samples.\n- 2026-08-23: R0002 confirmed fully complete end-to-end: `gatk-out/CT600-007R0002_filtered.vcf.gz` verified as a real VCF with 230 records, not just a SLURM-COMPLETED status. In verifying it, found a second instance of the same masking problem \u2014 `setup_reference.sh`'s `gatk CreateSequenceDictionary` threw a `PicardException` (`.dict already exists`, from a stale file left by an earlier run) but the script kept going and `bwa index` ran anyway, so the job still reported COMPLETED. Added `set -euo pipefail` to all 13 job scripts (every `.sh` except the sourced `load_modules.sh`) so a real failure now actually stops the job and correctly cancels dependents, instead of silently limping forward like this and the `MarkDuplicates` case below both did. Since `run_pipeline.sh` resubmits `setup_reference.sh` on every run regardless of sample, also made its three steps idempotent (skip if output already exists) \u2014 under `set -e`, `CreateSequenceDictionary` erroring on a pre-existing `.dict` would otherwise hard-fail every resubmission.\n- 2026-08-22: `mapDamage_vrouw_maria.sh`'s `MarkDuplicates` was failing at runtime with `NullPointerException: ... SAMRecord.getReadGroup() is null` \u2014 the pipeline ran `add_readgroups.sh` *after* dedup instead of before it, so `MarkDuplicates` never saw `@RG`-tagged input. Reordered: `bwa-vrouw.sh` \u2192 `add_readgroups.sh` \u2192 `mapDamage_vrouw_maria.sh` \u2192 `mapDamage_rescale.sh` \u2192 `gatk_hc.sh` (rows 3\u20137 above), `run_pipeline.sh`'s dependency chain updated to match. This is why the previous full-pipeline run (`ref-setup`/`fastqc`/`bwa-vrouw`/dedup all showed SLURM state COMPLETED) still produced no filtered VCF \u2014 `MarkDuplicates` failing didn't make the *script* exit non-zero.\n- 2026-08-22: `ref_gen/` was missing the actual reference fasta entirely (only a stray, incomplete `.dict` left over from a failed run). Fetched `GCF_036785885.1_Coffea_Arabica_ET-39_HiFi_genomic.fna` from NCBI RefSeq directly (no `datasets` CLI module on Roihu), MD5-verified against NCBI's checksum.\n- 2026-08-22: All 8 raw read files under `vrouw_maria_2026_segments/` were actually directories, left over from an incomplete Allas/Swift large-object transfer (each `*.fq.gz` \"file\" contained numbered byte segments instead of the real file). Reconstructed via ordered concatenation, verified with `gzip -t` on every file before removing the original segment directories.\n- 2026-08-22: Row 2 vs. row 3 directory name mismatch fixed \u2014 `bwa-vrouw.sh` now reads from `vrouw_maria_2026_segments/` (the directory that actually exists and is what `vrouw_maria_fastqc_job.sh` already used), not the never-present `vrouw_maria_2026/`.\n- 2026-08-22: Root cause of the `gatk`/`samtools`/`bwa`/`fastqc`/`picard` \"requires a toolchain that is incompatible with the currently loaded environment\" errors found and fixed: Roihu's login/job shells auto-load a default `StdEnv` toolchain (gcc/openmpi/ucx/openblas) that conflicts with `bio-apps/v202603`. `load_modules.sh` is now a sourced helper (`module purge` + `module load bio-apps/v202603`) used by every job script, each of which now also pins exact tool versions instead of bare names. Verified against `module spider` output and by actually loading each tool.\n- 2026-08-22: `extract_snp_viz_data.sh` and `vcf_stats.sh` were loading `module load biokit`, which doesn't exist on Roihu (a Puhti-era module name) \u2014 switched to `bcftools/1.23.1` + `samtools/1.21`.\n- 2026-08-22: `mapDamage_rescale.sh` / `mapDamage_vrouw_maria.sh` requested `mapdamage2/2.2.2`, which doesn't exist on Roihu \u2014 corrected to `mapdamage2/2.2.3`.\n- 2026-08-22: Visualization scripts/data (`vcf_stats.sh`, `vcf_plot.sh`, `extract_snp_viz_data.sh`, `build_snp_viz.py`, `viz-data/`, `vcf-stats-out/`) moved into `visualization/`, and dropped from `run_pipeline.sh`'s SLURM dependency chain until the base analysis is verified end-to-end. `vcf_plot.sh`'s hardcoded `cd` path (missing `the_coffee_wrecks/`) was fixed as part of the move.\n- 2026-08-21: `bwa index` moved out of `bwa-vrouw.sh` (was re-run on every alignment submission) into `setup_reference.sh` as a one-time step; `run_pipeline.sh` updated so `bwa-vrouw.sh` now waits on `setup_reference.sh` via `--dependency=afterok`.\n- Reference indexing (`faidx`/`CreateSequenceDictionary`) living in `gatk_hc.sh` \u2014 already moved to `setup_reference.sh` in an earlier session.\n- `bwa-vrouw.sh` writing output to the wrong directory (no `bwa-out/` prefix) \u2014 already fixed in the current script.\n- `mapDamage_vrouw_maria.sh`'s `MarkDuplicates` block being commented out \u2014 already fixed in the current script.\n- Duplicate `vcf_stats.sh`/`vcf-stats.sh` pair \u2014 only one file exists now.\n", "nav_samples": [{"id": "CT600-007R0002", "file": "viz-data/CT600-007R0002_snp_viz.html", "ready": true}, {"id": "CT600-007R0003", "file": "viz-data/CT600-007R0003_snp_viz.html", "ready": true}, {"id": "CT600-007R0004", "file": "viz-data/CT600-007R0004_snp_viz.html", "ready": true}, {"id": "CT600-007R0005", "file": "viz-data/CT600-007R0005_snp_viz.html", "ready": true}], "nav_docs": [{"label": "Pipeline", "file": "pipeline.html", "current": true}, {"label": "File Chart", "file": "file-chart.html", "current": false}]}</script>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+(function(){
+  const data = JSON.parse(document.getElementById('page-data').textContent);
+
+  (function ribbon(){
+    const wrap = document.getElementById('ribbon-links');
+    const home = document.createElement('a');
+    home.href = 'index.html';
+    home.textContent = 'Front page';
+    wrap.appendChild(home);
+    data.nav_samples.forEach(function(s){
+      const a = document.createElement('a');
+      a.textContent = s.id;
+      if (s.ready) { a.href = s.file; } else { a.className = 'pending'; a.href = '#'; }
+      wrap.appendChild(a);
+    });
+    const divider = document.createElement('div');
+    divider.className = 'ribbon-divider';
+    wrap.appendChild(divider);
+    data.nav_docs.forEach(function(d){
+      const a = document.createElement('a');
+      a.textContent = d.label;
+      a.href = d.file;
+      if (d.current) a.className = 'current';
+      wrap.appendChild(a);
+    });
+  })();
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  const renderer = new marked.Renderer();
+  const originalCode = renderer.code.bind(renderer);
+  renderer.code = function(code, infostring) {
+    if ((infostring || '').trim() === 'mermaid') {
+      return '<pre class="mermaid">' + escapeHtml(code) + '</pre>';
+    }
+    return originalCode(code, infostring);
+  };
+  marked.use({ renderer: renderer });
+
+  document.getElementById('markdown-body').innerHTML = marked.parse(data.markdown);
+
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+  mermaid.run({ querySelector: '.mermaid' });
+})();
+</script>
+</body>
+</html>

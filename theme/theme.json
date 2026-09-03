@@ -1,0 +1,16 @@
+{
+  "colors": {
+    "accent": "#fed95e",
+    "background": "#f2e9dc",
+    "background2": "#ffffff"
+  },
+  "fonts": {
+    "header": "'Times New Roman', Times, serif",
+    "body": "Arial, Helvetica, sans-serif"
+  },
+  "logo": {
+    "main": "theme/logo-main.png",
+    "main_fullres": "theme/logo-main-fullres.png",
+    "compass": "theme/logo-compass.png"
+  }
+}
