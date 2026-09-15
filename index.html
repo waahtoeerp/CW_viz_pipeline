@@ -269,13 +269,22 @@
     background: var(--accent);
   }
   footer {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
     padding-top: 24px;
     border-top: 1px solid var(--border);
   }
   footer img.logo-compass {
     width: 273px;
     height: auto;
+    opacity: 0.85;
+  }
+  footer img.logo-side {
+    height: 215px;
+    width: auto;
     opacity: 0.85;
   }
 </style>
@@ -372,7 +381,9 @@
   </section>
 
   <footer>
+    <img class="logo-side" src="theme/HY__LC01_LogoFP_3L_B3____BW_web..jpg" alt="University of Helsinki">
     <img class="logo-compass" src="theme/logo-compass.png" alt="The Coffee Wrecks Project compass mark">
+    <img class="logo-side" src="theme/MASlogo2020.svg" alt="Suomen Meriarkeologian Seura">
   </footer>
 
 </div>
