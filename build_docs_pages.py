@@ -112,6 +112,8 @@ h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28p
 .markdown-body th { background: color-mix(in srgb, var(--accent) 25%, transparent); font-weight: bold; }
 .markdown-body hr { border: none; border-top: 1px solid var(--gridline); margin: 24px 0; }
 .markdown-body pre.mermaid { background: var(--surface-1); border: 1px solid var(--gridline); padding: 20px; text-align: center; }
+footer.site-footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
 </style>
 </head>
 <body>
@@ -127,6 +129,9 @@ h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28p
   <div class="card">
     <div class="markdown-body" id="markdown-body"></div>
   </div>
+  <footer class="site-footer">
+    <img src="theme/logo-compass.png" alt="The Coffee Wrecks Project compass mark">
+  </footer>
 </div>
 
 <script type="application/json" id="page-data">__DATA_JSON__</script>

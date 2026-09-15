@@ -77,13 +77,54 @@
     font-family: var(--font-header);
     font-weight: 400;
     font-size: 20px;
+    margin: 0 0 4px;
+  }
+  .section-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
     margin: 0 0 16px;
+  }
+  .results-notice {
+    background: color-mix(in srgb, #b3261e 9%, var(--bg2));
+    border: 1px solid color-mix(in srgb, #b3261e 28%, transparent);
+    color: #8a2a20;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    margin: 0 0 6px;
+  }
+  .results-updated {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0 0 16px;
+  }
+  .sample-cluster {
+    background: color-mix(in srgb, var(--accent) 14%, var(--bg2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+  .sample-cluster-tag {
+    display: inline-block;
+    font-family: var(--font-header);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6b5300;
+    background: color-mix(in srgb, var(--accent) 45%, transparent);
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
   }
   .sample-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
     margin-bottom: 40px;
+  }
+  .sample-cluster .sample-grid {
+    margin-bottom: 0;
   }
   a.sample-card {
     display: block;
@@ -121,20 +162,121 @@
     background: var(--border);
     color: var(--text-secondary);
   }
+  section.about {
+    display: flex;
+    gap: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+  }
+  .about-photo {
+    flex: 0 0 315px;
+    height: 400px;
+    border-radius: 10px;
+    background-image: url('theme/researcher-photo.jpg');
+    background-repeat: no-repeat;
+    background-size: 186%;
+    background-position: 57.2% 70.5%;
+  }
+  .about-bio {
+    flex: 1;
+    min-width: 0;
+    align-self: center;
+  }
+  section.wreck {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+  .wreck-photo {
+    width: 100%;
+    height: 420px;
+    background-image: url('theme/wreck-photo.png');
+    background-repeat: no-repeat;
+    background-size: 134%;
+    background-position: 66.1% 100.0%;
+  }
+  .wreck-copy {
+    padding: 28px 32px;
+  }
+  .wreck-eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+  }
+  .wreck-tagline {
+    font-family: var(--font-header);
+    font-weight: 400;
+    font-size: 20px;
+    margin: 0 0 12px;
+  }
+  .wreck-body {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+  }
+  @media (max-width: 560px) {
+    section.about {
+      flex-direction: column;
+    }
+    .about-photo {
+      flex-basis: auto;
+      width: 100%;
+      height: 220px;
+    }
+    .wreck-photo {
+      height: 220px;
+    }
+  }
+  .about-bio h3 {
+    font-family: var(--font-header);
+    font-weight: 400;
+    font-size: 20px;
+    margin: 0 0 2px;
+  }
+  .about-role {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+  }
+  .about-text {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 0 16px;
+  }
+  .about-contact {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .about-contact a {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: #6b5300;
+  }
+  .about-contact a:hover {
+    background: var(--accent);
+  }
   footer {
     text-align: center;
     padding-top: 24px;
     border-top: 1px solid var(--border);
   }
   footer img.logo-compass {
-    width: 90px;
+    width: 273px;
     height: auto;
     opacity: 0.85;
-  }
-  footer .caption {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 8px;
   }
 </style>
 </head>
@@ -156,24 +298,30 @@
       below to view its full breakdown.</p>
   </section>
 
-  <h2 class="section-title">Samples</h2>
-  <div class="sample-grid">
-    <a class="sample-card" href="viz-data/CT600-007R0002_snp_viz.html">
-      <div class="sample-id">CT600-007R0002</div>
-      <span class="sample-status">Ready</span>
-    </a>
-    <a class="sample-card" href="viz-data/CT600-007R0003_snp_viz.html">
-      <div class="sample-id">CT600-007R0003</div>
-      <span class="sample-status">Ready</span>
-    </a>
-    <a class="sample-card" href="viz-data/CT600-007R0004_snp_viz.html">
-      <div class="sample-id">CT600-007R0004</div>
-      <span class="sample-status">Ready</span>
-    </a>
-    <a class="sample-card" href="viz-data/CT600-007R0005_snp_viz.html">
-      <div class="sample-id">CT600-007R0005</div>
-      <span class="sample-status">Ready</span>
-    </a>
+  <h2 class="section-title">Fresh brew of results ☕</h2>
+  <p class="section-subtitle">Ancient DNA recovered from the Vrouw Maria wreck, sequenced and called against the reference genome.</p>
+  <p class="results-notice">Preliminary results — the pipeline is still being refined and these results may change.</p>
+  <p class="results-updated">Last updated: September 15, 2026</p>
+  <div class="sample-cluster">
+    <span class="sample-cluster-tag">Vrouw Maria</span>
+    <div class="sample-grid">
+      <a class="sample-card" href="viz-data/CT600-007R0002_snp_viz.html">
+        <div class="sample-id">CT600-007R0002</div>
+        <span class="sample-status">Ready</span>
+      </a>
+      <a class="sample-card" href="viz-data/CT600-007R0003_snp_viz.html">
+        <div class="sample-id">CT600-007R0003</div>
+        <span class="sample-status">Ready</span>
+      </a>
+      <a class="sample-card" href="viz-data/CT600-007R0004_snp_viz.html">
+        <div class="sample-id">CT600-007R0004</div>
+        <span class="sample-status">Ready</span>
+      </a>
+      <a class="sample-card" href="viz-data/CT600-007R0005_snp_viz.html">
+        <div class="sample-id">CT600-007R0005</div>
+        <span class="sample-status">Ready</span>
+      </a>
+    </div>
   </div>
 
   <h2 class="section-title">Documentation</h2>
@@ -190,11 +338,41 @@
       <div class="sample-id">Simple File Chart</div>
       <span class="sample-status">Docs</span>
     </a>
+    <a class="sample-card" href="https://github.com/waahtoeerp/the_coffee_wrecks" target="_blank" rel="noopener">
+      <div class="sample-id">GitHub</div>
+      <span class="sample-status">Docs</span>
+    </a>
   </div>
+
+  <h2 class="section-title">About the Researcher</h2>
+  <section class="about">
+    <div class="about-photo" role="img" aria-label="[Your Name]"></div>
+    <div class="about-bio">
+      <h3>[Your Name]</h3>
+      <p class="about-role">PhD Candidate, [Department, University]</p>
+      <p class="about-text">[One-paragraph bio: research background, focus area, and how this
+        project fits into it.]</p>
+      <div class="about-contact">
+        <a href="mailto:you@example.com">Email</a>
+        <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="#" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="section-title">Vrouw Maria</h2>
+  <section class="wreck">
+    <div class="wreck-photo" role="img" aria-label="3D photogrammetry model of the Vrouw Maria wreck"></div>
+    <div class="wreck-copy">
+      <p class="wreck-eyebrow">Shipwreck · Parainen, Finland</p>
+      <p class="wreck-tagline">[A one-line hook — what the Vrouw Maria is, and why she matters to this project.]</p>
+      <p class="wreck-body">[Placeholder: the history of the wreck, its discovery, and its role as
+        the archaeological source of the coffee-bean samples analyzed in this study.]</p>
+    </div>
+  </section>
 
   <footer>
     <img class="logo-compass" src="theme/logo-compass.png" alt="The Coffee Wrecks Project compass mark">
-    <p class="caption">The Coffee Wrecks Project</p>
   </footer>
 
 </div>
