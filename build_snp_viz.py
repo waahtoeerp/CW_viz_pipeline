@@ -286,13 +286,23 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
     n_pass = sum(1 for s in snps if s["filter"] == "PASS")
     main_depth = (sum(c["meandepth"] for c in chromosomes) / len(chromosomes)) if chromosomes else 0.0
 
+    metagenomic_dir = os.path.join(os.path.dirname(os.path.abspath(viz_dir)), "metagenomic-data")
+
     nav_samples = []
     for s in KNOWN_SAMPLES:
         nav_samples.append({
             "id": s,
-            "file": f"{s}_snp_viz.html",
             "current": s == sample,
-            "ready": os.path.exists(os.path.join(viz_dir, f"{s}_snps.tsv")),
+            "types": {
+                "snp": {
+                    "file": f"{s}_snp_viz.html",
+                    "ready": os.path.exists(os.path.join(viz_dir, f"{s}_snps.tsv")),
+                },
+                "metagenomic": {
+                    "file": f"../metagenomic-data/{s}_metagenomic_viz.html",
+                    "ready": os.path.exists(os.path.join(metagenomic_dir, f"{s}_kraken2_report.txt")),
+                },
+            },
         })
 
     nav_docs = [
@@ -301,18 +311,11 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 
-    metagenomic_dir = os.path.join(os.path.dirname(os.path.abspath(viz_dir)), "metagenomic-data")
-    cross_link = {
-        "label": "Metagenomic Screening →",
-        "file": f"../metagenomic-data/{sample}_metagenomic_viz.html",
-        "ready": os.path.exists(os.path.join(metagenomic_dir, f"{sample}_kraken2_report.txt")),
-    }
-
     data = {
         "sample": sample,
+        "view_type": "snp",
         "nav_samples": nav_samples,
         "nav_docs": nav_docs,
-        "cross_link": cross_link,
         "main_chr": chromosomes,
         "organelles": organelles,
         "scaffolds": scaffolds,
@@ -418,14 +421,23 @@ footer.credits { color: var(--text-muted); font-size: 11.5px; margin-top: 8px; l
 .site-ribbon .ribbon-home { display: flex; align-items: center; }
 .site-ribbon .ribbon-home img { height: 32px; width: auto; display: block; }
 .site-ribbon .ribbon-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-family: var(--font-body); font-size: 15px; }
-.site-ribbon .ribbon-links a { text-decoration: none; padding: 7px 15px; border-radius: 999px; color: #6b6459; }
-.site-ribbon .ribbon-links a:hover { background: rgba(33,29,22,0.06); }
-.site-ribbon .ribbon-links a.current { background: #fed95e; color: #4a3900; font-weight: bold; }
-.site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
+.site-ribbon .ribbon-links > a { text-decoration: none; padding: 7px 15px; border-radius: 999px; color: #6b6459; }
+.site-ribbon .ribbon-links > a:hover { background: rgba(33,29,22,0.06); }
 .site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: rgba(33,29,22,0.12); margin: 4px 2px; }
-.site-ribbon .ribbon-crosslink { border: 1px solid #fed95e; font-weight: bold; color: #6b5300; }
-.site-ribbon .ribbon-crosslink:hover { background: color-mix(in srgb, #fed95e 25%, transparent); }
-.site-ribbon .ribbon-crosslink.pending { border-color: rgba(33,29,22,0.12); color: #6b6459; font-weight: normal; }
+.ribbon-sample { position: relative; }
+.ribbon-sample-btn { font: inherit; font-size: 15px; cursor: pointer; border: none; background: none;
+  padding: 7px 15px; border-radius: 999px; color: #6b6459; }
+.ribbon-sample-btn:hover { background: rgba(33,29,22,0.06); }
+.ribbon-sample-btn.current { background: #fed95e; color: #4a3900; font-weight: bold; }
+.ribbon-menu { position: absolute; top: 100%; left: 0; margin-top: 4px; background: #ffffff;
+  border: 1px solid rgba(33,29,22,0.12); border-radius: 10px; box-shadow: 0 8px 24px rgba(33,29,22,0.14);
+  padding: 6px; min-width: 200px; z-index: 60; display: none; }
+.ribbon-menu.open { display: block; }
+.ribbon-menu a { display: block; text-decoration: none; padding: 8px 12px; border-radius: 8px;
+  font-size: 14px; color: #211d16; }
+.ribbon-menu a:hover { background: rgba(33,29,22,0.06); }
+.ribbon-menu a.current { font-weight: bold; color: #6b5300; background: color-mix(in srgb, #fed95e 30%, transparent); }
+.ribbon-menu a.pending { pointer-events: none; opacity: 0.5; }
 footer.site-footer { text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
 footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
 </style>
@@ -549,25 +561,54 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     home.href = '../index.html';
     home.textContent = 'Front page';
     wrap.appendChild(home);
+
+    const REPORT_TYPES = [['snp', 'SNP & Coverage'], ['metagenomic', 'Metagenomic Screening']];
+
+    function closeAllMenus() {
+      document.querySelectorAll('.ribbon-menu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+
     data.nav_samples.forEach(function(s){
-      const a = document.createElement('a');
-      a.textContent = s.id;
-      if (s.current) {
-        a.className = 'current';
-        a.href = '#';
-      } else if (s.ready) {
-        a.href = s.file;
-      } else {
-        a.className = 'pending';
-        a.href = '#';
-      }
-      wrap.appendChild(a);
+      const box = document.createElement('div');
+      box.className = 'ribbon-sample';
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ribbon-sample-btn' + (s.current ? ' current' : '');
+      btn.textContent = s.id;
+
+      const menu = document.createElement('div');
+      menu.className = 'ribbon-menu';
+      REPORT_TYPES.forEach(function(pair){
+        const key = pair[0], label = pair[1];
+        const info = s.types[key];
+        const a = document.createElement('a');
+        a.textContent = label;
+        if (s.current && key === data.view_type) {
+          a.className = 'current';
+          a.href = '#';
+        } else if (info.ready) {
+          a.href = info.file;
+        } else {
+          a.className = 'pending';
+          a.href = '#';
+        }
+        menu.appendChild(a);
+      });
+
+      btn.addEventListener('click', function(evt){
+        evt.stopPropagation();
+        const wasOpen = menu.classList.contains('open');
+        closeAllMenus();
+        if (!wasOpen) menu.classList.add('open');
+      });
+
+      box.appendChild(btn);
+      box.appendChild(menu);
+      wrap.appendChild(box);
     });
-    const cross = document.createElement('a');
-    cross.textContent = data.cross_link.label;
-    cross.className = 'ribbon-crosslink' + (data.cross_link.ready ? '' : ' pending');
-    cross.href = data.cross_link.ready ? data.cross_link.file : '#';
-    wrap.appendChild(cross);
+    document.addEventListener('click', closeAllMenus);
+
     const divider = document.createElement('div');
     divider.className = 'ribbon-divider';
     wrap.appendChild(divider);
