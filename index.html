@@ -162,6 +162,32 @@
     background: var(--border);
     color: var(--text-secondary);
   }
+  .info-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .info-box h3 {
+    font-family: var(--font-header);
+    font-weight: 400;
+    font-size: 16px;
+    margin: 0 0 8px;
+  }
+  .info-box p {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+  }
+  .info-box ul {
+    margin: 8px 0 0;
+    padding-left: 20px;
+  }
+  .info-box li {
+    margin-bottom: 6px;
+  }
   section.about {
     display: flex;
     gap: 24px;
@@ -329,6 +355,48 @@
       <a class="sample-card" href="viz-data/CT600-007R0005_snp_viz.html">
         <div class="sample-id">CT600-007R0005</div>
         <span class="sample-status">Ready</span>
+      </a>
+    </div>
+  </div>
+
+  <h2 class="section-title">Metagenomic Screening</h2>
+  <p class="section-subtitle">Taxonomic classification of sequencing reads against the NCBI reference database, run on the same Vrouw Maria samples.</p>
+  <p class="results-notice">Pending — awaiting the metagenomic screening data. This section will populate once results come in.</p>
+  <div class="info-box">
+    <h3>How it works, roughly</h3>
+    <p>Metagenomic screening classifies every sequencing read against a database of known
+      organisms, so a sample can be checked for DNA beyond the target reference — contaminants,
+      environmental microbes, and the like.</p>
+    <ul>
+      <li>It breaks every read into overlapping k-mers (short, fixed-length chunks — 35 base
+        pairs by default).</li>
+      <li>Each k-mer is looked up in a precomputed database: essentially a giant hash table
+        mapping k-mers to the lowest common ancestor (LCA) in the NCBI taxonomy tree of every
+        reference genome that contains that k-mer. A k-mer found only in <em>E. coli</em> maps
+        to <em>E. coli</em>; one shared across all Proteobacteria maps up to that broader group
+        instead.</li>
+      <li>A read gets classified to whichever taxon accumulates the most k-mer "votes" along the
+        tree.</li>
+    </ul>
+  </div>
+  <div class="sample-cluster">
+    <span class="sample-cluster-tag">Vrouw Maria</span>
+    <div class="sample-grid">
+      <a class="sample-card pending" href="viz-data/CT600-007R0002_metagenomic_viz.html">
+        <div class="sample-id">CT600-007R0002</div>
+        <span class="sample-status">Pending</span>
+      </a>
+      <a class="sample-card pending" href="viz-data/CT600-007R0003_metagenomic_viz.html">
+        <div class="sample-id">CT600-007R0003</div>
+        <span class="sample-status">Pending</span>
+      </a>
+      <a class="sample-card pending" href="viz-data/CT600-007R0004_metagenomic_viz.html">
+        <div class="sample-id">CT600-007R0004</div>
+        <span class="sample-status">Pending</span>
+      </a>
+      <a class="sample-card pending" href="viz-data/CT600-007R0005_metagenomic_viz.html">
+        <div class="sample-id">CT600-007R0005</div>
+        <span class="sample-status">Pending</span>
       </a>
     </div>
   </div>
