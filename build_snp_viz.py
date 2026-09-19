@@ -301,10 +301,18 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 
+    metagenomic_dir = os.path.join(os.path.dirname(os.path.abspath(viz_dir)), "metagenomic-data")
+    cross_link = {
+        "label": "Metagenomic Screening →",
+        "file": f"../metagenomic-data/{sample}_metagenomic_viz.html",
+        "ready": os.path.exists(os.path.join(metagenomic_dir, f"{sample}_kraken2_report.txt")),
+    }
+
     data = {
         "sample": sample,
         "nav_samples": nav_samples,
         "nav_docs": nav_docs,
+        "cross_link": cross_link,
         "main_chr": chromosomes,
         "organelles": organelles,
         "scaffolds": scaffolds,
@@ -409,12 +417,15 @@ footer.credits { color: var(--text-muted); font-size: 11.5px; margin-top: 8px; l
   border-bottom: 1px solid rgba(33,29,22,0.12); padding: 8px 24px; position: sticky; top: 0; z-index: 50; }
 .site-ribbon .ribbon-home { display: flex; align-items: center; }
 .site-ribbon .ribbon-home img { height: 32px; width: auto; display: block; }
-.site-ribbon .ribbon-links { display: flex; gap: 6px; flex-wrap: wrap; font-family: var(--font-body); font-size: 13px; }
-.site-ribbon .ribbon-links a { text-decoration: none; padding: 6px 14px; border-radius: 999px; color: #6b6459; }
+.site-ribbon .ribbon-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-family: var(--font-body); font-size: 15px; }
+.site-ribbon .ribbon-links a { text-decoration: none; padding: 7px 15px; border-radius: 999px; color: #6b6459; }
 .site-ribbon .ribbon-links a:hover { background: rgba(33,29,22,0.06); }
 .site-ribbon .ribbon-links a.current { background: #fed95e; color: #4a3900; font-weight: bold; }
 .site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
 .site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: rgba(33,29,22,0.12); margin: 4px 2px; }
+.site-ribbon .ribbon-crosslink { border: 1px solid #fed95e; font-weight: bold; color: #6b5300; }
+.site-ribbon .ribbon-crosslink:hover { background: color-mix(in srgb, #fed95e 25%, transparent); }
+.site-ribbon .ribbon-crosslink.pending { border-color: rgba(33,29,22,0.12); color: #6b6459; font-weight: normal; }
 footer.site-footer { text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
 footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
 </style>
@@ -552,6 +563,11 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
       }
       wrap.appendChild(a);
     });
+    const cross = document.createElement('a');
+    cross.textContent = data.cross_link.label;
+    cross.className = 'ribbon-crosslink' + (data.cross_link.ready ? '' : ' pending');
+    cross.href = data.cross_link.ready ? data.cross_link.file : '#';
+    wrap.appendChild(cross);
     const divider = document.createElement('div');
     divider.className = 'ribbon-divider';
     wrap.appendChild(divider);
