@@ -19,11 +19,13 @@ Usage:
   ./build_snp_viz.py [--viz-data-dir viz-data] [--out viz-data/SAMPLE_snp_viz.html] [--no-network]
 """
 import argparse
+import csv
 import glob
 import json
 import os
 import re
 import sys
+import urllib.parse
 import urllib.request
 import urllib.error
 
@@ -101,6 +103,51 @@ def parse_local_depth(path):
 REFERENCE_GC = 0.37496
 
 BWA_ALN_PARAMS = "bwa aln -l 16500 -n 0.01"
+
+
+def gene_source_url(chrom, start, end):
+    """Link to the actual NCBI record for this exact locus, not a name search --
+    always resolves regardless of whether the gene has a clean symbol."""
+    return f"https://www.ncbi.nlm.nih.gov/nuccore/{chrom}?report=genbank&from={start}&to={end}"
+
+
+def gene_articles_url(name):
+    """A live PubMed search, not specific cited articles -- we don't fabricate
+    citations here, this just gets the user to real, current search results."""
+    query = urllib.parse.quote(f"{name} Coffea")
+    return f"https://pubmed.ncbi.nlm.nih.gov/?term={query}"
+
+
+def build_gene_table(zooms):
+    """Dedup genes across zoom windows (by exact locus) into one flat table."""
+    rows, seen = [], set()
+    for zoom in zooms:
+        if not zoom:
+            continue
+        for g in zoom.get("genes", []):
+            key = (zoom["chrom"], g["start"], g["end"], g["name"])
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append({
+                "name": g["name"],
+                "type": g["type"],
+                "chrom": zoom["chrom"],
+                "start": g["start"],
+                "end": g["end"],
+                "source_url": gene_source_url(zoom["chrom"], g["start"], g["end"]),
+                "articles_url": gene_articles_url(g["name"]),
+            })
+    rows.sort(key=lambda r: (r["chrom"], r["start"]))
+    return rows
+
+
+def write_gene_csv(path, gene_rows):
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["Name", "Source (NCBI)", "Articles"])
+        for g in gene_rows:
+            w.writerow([g["name"], g["source_url"], g["articles_url"]])
 
 
 def parse_signal_funnel(path):
@@ -315,6 +362,11 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
             f"{len(cluster)} SNPs. " + gene_summary(zoom2["genes"])
         )
 
+    gene_table = build_gene_table([zoom1, zoom2])
+    gene_csv_path = os.path.join(viz_dir, f"{sample}_zoom_genes.csv")
+    write_gene_csv(gene_csv_path, gene_table)
+    print(f"Wrote {gene_csv_path} ({len(gene_table)} gene(s))")
+
     n_pass = sum(1 for s in snps if s["filter"] == "PASS")
     main_depth = (sum(c["meandepth"] for c in chromosomes) / len(chromosomes)) if chromosomes else 0.0
 
@@ -359,6 +411,8 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
         "snps": snps,
         "zoom1": zoom1,
         "zoom2": zoom2,
+        "gene_table": gene_table,
+        "gene_csv_file": f"{sample}_zoom_genes.csv",
         "stats": {
             "n_chromosomes": len(chromosomes),
             "n_organelles": len(organelles),
@@ -463,6 +517,8 @@ table.snp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 table.snp-table thead th { position: sticky; top: 0; background: var(--surface-1); text-align: left;
   padding: 8px 10px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--gridline); }
 table.snp-table td { padding: 7px 10px; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+table.snp-table td a { color: #7a5f00; text-decoration: none; }
+table.snp-table td a:hover { text-decoration: underline; }
 table.snp-table tbody tr:hover { background: var(--series-1-wash); }
 .table-scroll { max-height: 420px; overflow-y: auto; border: 1px solid var(--gridline); border-radius: 8px; }
 .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
@@ -576,6 +632,17 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     </div>
     <div id="zoom2"></div>
     <p class="callout-note">Hover a dot for details.</p>
+  </div>
+
+  <div class="card" id="gene-table-card" style="display:none">
+    <h2>Genes near the zoomed-in SNPs</h2>
+    <p class="desc">Every annotated feature shown in either zoom window above, deduplicated by exact locus. "Source" links straight to that region on NCBI; "Articles" is a live PubMed search for the gene name, not a curated citation list. Also written to <code id="gene-csv-name"></code> alongside this page for offline use.</p>
+    <div class="table-scroll">
+      <table class="snp-table">
+        <thead><tr><th>Name</th><th>Source (NCBI)</th><th>Articles</th></tr></thead>
+        <tbody id="gene-tbody"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card">
@@ -1036,6 +1103,27 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     document.getElementById('zoom2-desc').textContent = data.zoom2.description;
     renderZoom('zoom2', data.zoom2);
   }
+
+  (function geneTable(){
+    const genes = data.gene_table || [];
+    if (!genes.length) return;
+    document.getElementById('gene-table-card').style.display = '';
+    document.getElementById('gene-csv-name').textContent = data.gene_csv_file;
+    const tbody = document.getElementById('gene-tbody');
+    genes.forEach(function(g){
+      const tr = document.createElement('tr');
+      const nameTd = document.createElement('td'); nameTd.textContent = g.name; tr.appendChild(nameTd);
+      const sourceTd = document.createElement('td');
+      const sourceLink = document.createElement('a'); sourceLink.href = g.source_url; sourceLink.target = '_blank';
+      sourceLink.rel = 'noopener'; sourceLink.textContent = 'View on NCBI';
+      sourceTd.appendChild(sourceLink); tr.appendChild(sourceTd);
+      const articlesTd = document.createElement('td');
+      const articlesLink = document.createElement('a'); articlesLink.href = g.articles_url; articlesLink.target = '_blank';
+      articlesLink.rel = 'noopener'; articlesLink.textContent = 'Search PubMed';
+      articlesTd.appendChild(articlesLink); tr.appendChild(articlesTd);
+      tbody.appendChild(tr);
+    });
+  })();
 
   document.getElementById('footer-credits').textContent =
     'Gene annotations (if shown) from NCBI RefSeq, fetched at build time. Regenerate this page with build_snp_viz.py after refreshing viz-data/ from Puhti.';
