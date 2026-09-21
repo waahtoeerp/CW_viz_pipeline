@@ -110,6 +110,14 @@ def parse_signal_funnel(path):
         return json.load(f)
 
 
+def parse_signal_funnel_baseline(viz_dir, sample):
+    """Pre-fastp-trimming snapshot, only present for samples whose rerun has
+    landed (currently just R0002). Carries its own n_filtered_variants since
+    that count isn't recoverable from the live snps.tsv once it's been
+    overwritten by the post-trim rerun -- see viz-data/*_signal_funnel_baseline.json."""
+    return parse_signal_funnel(os.path.join(viz_dir, f"{sample}_signal_funnel_baseline.json"))
+
+
 def parse_gc_content(path, sample):
     if not os.path.exists(path):
         return None
@@ -311,6 +319,7 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
     main_depth = (sum(c["meandepth"] for c in chromosomes) / len(chromosomes)) if chromosomes else 0.0
 
     signal_funnel = parse_signal_funnel(os.path.join(viz_dir, f"{sample}_signal_funnel.json"))
+    signal_funnel_baseline = parse_signal_funnel_baseline(viz_dir, sample)
     gc = parse_gc_content(os.path.join(viz_dir, "read_gc_content.json"), sample)
 
     metagenomic_dir = os.path.join(os.path.dirname(os.path.abspath(viz_dir)), "metagenomic-data")
@@ -359,6 +368,7 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
         },
         "qc": {
             "signal_funnel": signal_funnel,
+            "signal_funnel_baseline": signal_funnel_baseline,
             "gc_sample": gc["gc_after"] if gc else None,
             "reference_gc": REFERENCE_GC,
             "bwa_aln_params": BWA_ALN_PARAMS,
@@ -411,6 +421,9 @@ h1 { font-family: var(--font-header); font-weight: 400; font-size: 26px; margin:
 .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px 22px; margin-bottom: 20px; overflow-x: auto; }
 .card h2 { font-family: var(--font-header); font-weight: 400; font-size: 18px; margin: 0 0 4px; }
+.card h3.subhead { font-family: var(--font-header); font-weight: 400; font-size: 14px;
+  color: var(--text-primary); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.card h3.subhead:first-of-type { margin-top: 4px; }
 .card .desc { color: var(--text-secondary); font-size: 13px; margin: 0 0 16px; max-width: 680px; }
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .stat-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
@@ -432,6 +445,20 @@ svg { display: block; overflow: visible; font-family: inherit; }
   box-shadow: 0 4px 16px rgba(0,0,0,0.18); z-index: 100; opacity: 0; transition: opacity .1s; max-width: 260px; }
 .tooltip .tt-value { font-weight: 600; }
 .tooltip .tt-sub { color: var(--text-secondary); }
+.compare-table-wrap { border: 1px solid var(--gridline); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+table.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.compare-table th, table.compare-table td { padding: 9px 14px; border-bottom: 1px solid var(--gridline); border-right: 1px solid var(--gridline); }
+table.compare-table th:last-child, table.compare-table td:last-child { border-right: none; }
+table.compare-table tbody tr:last-child th, table.compare-table tbody tr:last-child td { border-bottom: none; }
+table.compare-table thead th { text-align: left; color: var(--text-secondary); font-weight: 600; background: color-mix(in srgb, var(--accent) 16%, var(--surface-1)); }
+table.compare-table th.num, table.compare-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.compare-table tbody th { text-align: left; font-weight: 500; color: var(--text-primary); background: color-mix(in srgb, var(--text-muted) 5%, var(--surface-1)); }
+table.compare-table tbody td { background: var(--surface-1); }
+table.compare-table tbody tr:hover th, table.compare-table tbody tr:hover td { background: var(--series-1-wash); }
+table.compare-table .delta { display: block; font-size: 11px; margin-top: 1px; }
+table.compare-table .delta.good { color: var(--good); }
+table.compare-table .delta.warn { color: var(--warning); }
+table.compare-table .delta.muted { color: var(--text-muted); }
 table.snp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 table.snp-table thead th { position: sticky; top: 0; background: var(--surface-1); text-align: left;
   padding: 8px 10px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--gridline); }
@@ -492,9 +519,17 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
   <div class="banner" id="banner"></div>
 
   <div class="card" id="qc-card" style="display:none">
-    <h2>Sample QC: where did the reads go?</h2>
+    <h2>Sample Quality Control</h2>
     <p class="desc" id="qc-desc"></p>
+    <h3 class="subhead">Read funnel</h3>
     <div class="stat-row" id="qc-funnel-row"></div>
+    <div class="compare-table-wrap" id="qc-funnel-table-wrap" style="display:none">
+      <table class="compare-table" id="qc-funnel-table">
+        <thead><tr><th></th><th class="num">Pre-trim (baseline)</th><th class="num">Post-trim (now)</th></tr></thead>
+        <tbody id="qc-funnel-tbody"></tbody>
+      </table>
+    </div>
+    <h3 class="subhead" id="qc-gc-heading" style="display:none">GC content</h3>
     <div class="stat-row" id="qc-gc-row"></div>
     <p class="callout-note" id="qc-params-note"></p>
   </div>
@@ -668,7 +703,43 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     if (!sf && q.gc_sample == null) return;
     document.getElementById('qc-card').style.display = '';
 
-    if (sf) {
+    const base = q.signal_funnel_baseline;
+    if (sf && base) {
+      document.getElementById('qc-funnel-table-wrap').style.display = '';
+      const tbody = document.getElementById('qc-funnel-tbody');
+      function pctDelta(now, before) {
+        if (!before) return null;
+        return (now - before) / before * 100;
+      }
+      function deltaSpan(now, before, higherIsBetter) {
+        const d = pctDelta(now, before);
+        if (d == null || Math.abs(d) < 0.05) return '';
+        const sign = d >= 0 ? '+' : '';
+        const cls = higherIsBetter == null ? 'muted' : ((d >= 0) === higherIsBetter ? 'good' : 'warn');
+        return '<span class="delta ' + cls + '">' + sign + d.toFixed(0) + '%</span>';
+      }
+      const rows = [
+        {label: 'Raw reads', before: fmt(base.raw_reads,0), now: fmt(sf.raw_reads,0),
+         deltaHtml: deltaSpan(sf.raw_reads, base.raw_reads, null)},
+        {label: 'Mapped (endogenous)',
+         before: fmt(base.mapped_reads,0) + ' (' + (base.mapped_pct_of_raw*100).toFixed(3) + '%)',
+         now: fmt(sf.mapped_reads,0) + ' (' + (sf.mapped_pct_of_raw*100).toFixed(3) + '%)',
+         deltaHtml: deltaSpan(sf.mapped_reads, base.mapped_reads, true)},
+        {label: 'Unique after dedup', before: fmt(base.unique_reads,0), now: fmt(sf.unique_reads,0),
+         deltaHtml: deltaSpan(sf.unique_reads, base.unique_reads, true)},
+        {label: 'Est. library size', before: fmt(base.estimated_library_size,0), now: fmt(sf.estimated_library_size,0),
+         deltaHtml: deltaSpan(sf.estimated_library_size, base.estimated_library_size, true)},
+        {label: 'Filtered SNPs', before: fmt(base.n_filtered_variants,0), now: fmt(q.n_filtered_variants,0),
+         deltaHtml: deltaSpan(q.n_filtered_variants, base.n_filtered_variants, true)},
+      ];
+      rows.forEach(function(r){
+        const tr = document.createElement('tr');
+        const th = document.createElement('th'); th.textContent = r.label; tr.appendChild(th);
+        const tdBefore = document.createElement('td'); tdBefore.className = 'num'; tdBefore.textContent = r.before; tr.appendChild(tdBefore);
+        const tdNow = document.createElement('td'); tdNow.className = 'num'; tdNow.innerHTML = r.now + (r.deltaHtml || ''); tr.appendChild(tdNow);
+        tbody.appendChild(tr);
+      });
+    } else if (sf) {
       const funnelRow = document.getElementById('qc-funnel-row');
       const funnelTiles = [
         {label: 'Raw reads', value: fmt(sf.raw_reads, 0)},
@@ -688,6 +759,7 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     }
 
     if (q.gc_sample != null) {
+      document.getElementById('qc-gc-heading').style.display = '';
       const gcRow = document.getElementById('qc-gc-row');
       const diff = (q.gc_sample - q.reference_gc) * 100;
       const gcTiles = [
@@ -706,6 +778,9 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     }
 
     let desc = 'How many reads made it through each stage, from raw sequencing output to the variants shown below.';
+    if (base) {
+      desc += ' fastp adapter/quality trimming was added to the pipeline on 2026-09-19 — this sample has already been rerun with it, shown against its pre-trim baseline.';
+    }
     if (q.gc_sample != null) {
       desc += ' A large GC-content gap between the raw reads and the reference is itself a contamination signal — coffee DNA reads should land close to the reference\\'s own GC content, so a big gap points to non-target DNA making up most of the read pool (confirmed directly for this project by metagenomic screening — see the Pipeline doc).';
     }
