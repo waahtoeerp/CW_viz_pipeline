@@ -1,0 +1,12 @@
+{
+  "sample": "CT600-007R0003",
+  "raw_reads": 213781012,
+  "mapped_reads": 1666557,
+  "mapped_pct_of_raw": 0.007795626863250137,
+  "duplicate_reads": 1663131,
+  "duplicate_pct_of_mapped": 0.9979442647326194,
+  "unique_reads": 3426,
+  "unique_pct_of_raw": 1.6025745074122858e-05,
+  "estimated_library_size": 1314,
+  "n_filtered_variants": 201
+}

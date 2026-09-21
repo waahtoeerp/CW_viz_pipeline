@@ -1,11 +1,11 @@
 {
   "sample": "CT600-007R0004",
-  "raw_reads": 222830583,
-  "mapped_reads": 2031668,
-  "mapped_pct_of_raw": 0.009117545592922494,
-  "duplicate_reads": 2027891,
-  "duplicate_pct_of_mapped": 0.9981409364128391,
-  "unique_reads": 3777,
-  "unique_pct_of_raw": 1.6950097016081494e-05,
-  "estimated_library_size": 1588
+  "raw_reads": 219084632,
+  "mapped_reads": 1970846,
+  "mapped_pct_of_raw": 0.008995820391454933,
+  "duplicate_reads": 1965677,
+  "duplicate_pct_of_mapped": 0.9973772684420802,
+  "unique_reads": 5169,
+  "unique_pct_of_raw": 2.3593622030047275e-05,
+  "estimated_library_size": 2961
 }
