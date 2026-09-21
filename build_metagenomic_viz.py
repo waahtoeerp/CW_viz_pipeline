@@ -171,7 +171,10 @@ def build_sample(sample, data_dir):
             },
         })
     nav_docs = [
-        {"label": "Report Guide", "file": "../report-guide.html"},
+        {"label": "Report Guide", "menu": [
+            {"label": "Understanding the Sample Report", "file": "../report-guide.html"},
+            {"label": "Understanding Metagenomic Screening", "file": "../metagenomic-guide.html"},
+        ]},
         {"label": "Pipeline", "file": "../pipeline.html"},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
@@ -442,10 +445,36 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     divider.className = 'ribbon-divider';
     wrap.appendChild(divider);
     data.nav_docs.forEach(function(d){
-      const a = document.createElement('a');
-      a.textContent = d.label;
-      a.href = d.file;
-      wrap.appendChild(a);
+      if (d.menu) {
+        const box = document.createElement('div');
+        box.className = 'ribbon-sample';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ribbon-sample-btn';
+        btn.textContent = d.label;
+        const menu = document.createElement('div');
+        menu.className = 'ribbon-menu';
+        d.menu.forEach(function(item){
+          const a = document.createElement('a');
+          a.textContent = item.label;
+          a.href = item.file;
+          menu.appendChild(a);
+        });
+        btn.addEventListener('click', function(evt){
+          evt.stopPropagation();
+          const wasOpen = menu.classList.contains('open');
+          closeAllMenus();
+          if (!wasOpen) menu.classList.add('open');
+        });
+        box.appendChild(btn);
+        box.appendChild(menu);
+        wrap.appendChild(box);
+      } else {
+        const a = document.createElement('a');
+        a.textContent = d.label;
+        a.href = d.file;
+        wrap.appendChild(a);
+      }
     });
   })();
 

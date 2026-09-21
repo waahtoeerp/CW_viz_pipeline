@@ -30,6 +30,19 @@ body { margin: 0; background: var(--page); color: var(--text-primary); font-fami
 .site-ribbon .ribbon-links a.current { background: var(--accent); color: #4a3900; font-weight: bold; }
 .site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
 .site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: var(--border); margin: 4px 2px; }
+.ribbon-sample { position: relative; }
+.ribbon-sample-btn { font: inherit; font-size: 13px; cursor: pointer; border: none; background: none;
+  padding: 6px 14px; border-radius: 999px; color: var(--text-secondary); }
+.ribbon-sample-btn:hover { background: rgba(33,29,22,0.06); }
+.ribbon-sample-btn.current { background: var(--accent); color: #4a3900; font-weight: bold; }
+.ribbon-menu { position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--surface-1);
+  border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(33,29,22,0.14);
+  padding: 6px; min-width: 220px; z-index: 60; display: none; }
+.ribbon-menu.open { display: block; }
+.ribbon-menu a { display: block; text-decoration: none; padding: 8px 12px; border-radius: 8px;
+  font-size: 14px; color: var(--text-primary); }
+.ribbon-menu a:hover { background: rgba(33,29,22,0.06); }
+.ribbon-menu a.current { font-weight: bold; color: #6b5300; background: color-mix(in srgb, var(--accent) 30%, transparent); }
 .page { max-width: 900px; margin: 0 auto; padding: 36px 24px 80px; }
 h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28px; margin: 0 0 4px; }
 .accent-rule { height: 4px; width: 60px; background: var(--accent); margin: 0 0 24px; border-radius: 2px; }
@@ -73,7 +86,7 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
   </footer>
 </div>
 
-<script type="application/json" id="page-data">{"markdown": "\n```mermaid\n\nflowchart TD\n    R[\"raw reads\\nvrouw_maria_2026_segments/\"] --> S1\n\n    subgraph S1[\"\u2460 bwa-vrouw.sh\"]\n        direction TB\n        A1[\"SAMPLE_1.sai + _2.sai\\n~1GB\"]\n        A2[\"bwa-out/SAMPLE_sorted.bam\\n12GB\"]\n    end\n    S1 --> S2\n\n    subgraph S2[\"\u2461 add_readgroups.sh\"]\n        B1[\"bwa-out/SAMPLE_sorted_RG.bam\\n13GB\"]\n    end\n    S2 --> S3\n\n    subgraph S3[\"\u2462 mapDamage_vrouw_maria.sh\"]\n        direction TB\n        C1[\"bwa-out/SAMPLE_dedup.bam\\n13GB\"]\n        C2[\"mapDamage-out/SAMPLE_mapDamage/\\nQC plots, few MB\"]\n    end\n    S3 --> S4\n\n    subgraph S4[\"\u2463 mapDamage_rescale.sh\"]\n        D1[\"mapDamage-out/.../SAMPLE_dedup.rescaled.bam\\n12GB\"]\n    end\n    S4 --> S5\n\n    subgraph S5[\"\u2464 gatk_hc.sh\"]\n        E1[\"gatk-out/SAMPLE.g.vcf.gz\\n50KB\"]\n    end\n    S5 --> S6\n\n    subgraph S6[\"\u2465 genotype_gvcf.sh\"]\n        F1[\"gatk-out/SAMPLE.vcf.gz\\n11KB\"]\n    end\n    S6 --> S7\n\n    subgraph S7[\"\u2466 gatk-filter.sh\"]\n        G1[\"gatk-out/SAMPLE_filtered.vcf.gz\\n11KB\"]\n    end\n    S7 --> VIZ[\"visualization/\\nextract_snp_viz_data.sh\"]\n\n    classDef used fill:#1a7f1a,color:#fff,stroke:#0d4d0d,stroke-width:2px\n    classDef dead fill:#d8d8d0,color:#333,stroke:#999\n    class A1,A2,B1,C1 dead\n    class C2,D1,E1,F1,G1 used\n\n    ```\n\n", "nav_samples": [{"id": "CT600-007R0002", "file": "viz-data/CT600-007R0002_snp_viz.html", "ready": true}, {"id": "CT600-007R0003", "file": "viz-data/CT600-007R0003_snp_viz.html", "ready": true}, {"id": "CT600-007R0004", "file": "viz-data/CT600-007R0004_snp_viz.html", "ready": true}, {"id": "CT600-007R0005", "file": "viz-data/CT600-007R0005_snp_viz.html", "ready": true}], "nav_docs": [{"label": "Report Guide", "file": "report-guide.html", "current": false}, {"label": "Pipeline", "file": "pipeline.html", "current": false}, {"label": "File Chart", "file": "file-chart.html", "current": true}]}</script>
+<script type="application/json" id="page-data">{"markdown": "\n```mermaid\n\nflowchart TD\n    R[\"raw reads\\nvrouw_maria_2026_segments/\"] --> S1\n\n    subgraph S1[\"\u2460 bwa-vrouw.sh\"]\n        direction TB\n        A1[\"SAMPLE_1.sai + _2.sai\\n~1GB\"]\n        A2[\"bwa-out/SAMPLE_sorted.bam\\n12GB\"]\n    end\n    S1 --> S2\n\n    subgraph S2[\"\u2461 add_readgroups.sh\"]\n        B1[\"bwa-out/SAMPLE_sorted_RG.bam\\n13GB\"]\n    end\n    S2 --> S3\n\n    subgraph S3[\"\u2462 mapDamage_vrouw_maria.sh\"]\n        direction TB\n        C1[\"bwa-out/SAMPLE_dedup.bam\\n13GB\"]\n        C2[\"mapDamage-out/SAMPLE_mapDamage/\\nQC plots, few MB\"]\n    end\n    S3 --> S4\n\n    subgraph S4[\"\u2463 mapDamage_rescale.sh\"]\n        D1[\"mapDamage-out/.../SAMPLE_dedup.rescaled.bam\\n12GB\"]\n    end\n    S4 --> S5\n\n    subgraph S5[\"\u2464 gatk_hc.sh\"]\n        E1[\"gatk-out/SAMPLE.g.vcf.gz\\n50KB\"]\n    end\n    S5 --> S6\n\n    subgraph S6[\"\u2465 genotype_gvcf.sh\"]\n        F1[\"gatk-out/SAMPLE.vcf.gz\\n11KB\"]\n    end\n    S6 --> S7\n\n    subgraph S7[\"\u2466 gatk-filter.sh\"]\n        G1[\"gatk-out/SAMPLE_filtered.vcf.gz\\n11KB\"]\n    end\n    S7 --> VIZ[\"visualization/\\nextract_snp_viz_data.sh\"]\n\n    classDef used fill:#1a7f1a,color:#fff,stroke:#0d4d0d,stroke-width:2px\n    classDef dead fill:#d8d8d0,color:#333,stroke:#999\n    class A1,A2,B1,C1 dead\n    class C2,D1,E1,F1,G1 used\n\n    ```\n\n", "nav_samples": [{"id": "CT600-007R0002", "file": "viz-data/CT600-007R0002_snp_viz.html", "ready": true}, {"id": "CT600-007R0003", "file": "viz-data/CT600-007R0003_snp_viz.html", "ready": true}, {"id": "CT600-007R0004", "file": "viz-data/CT600-007R0004_snp_viz.html", "ready": true}, {"id": "CT600-007R0005", "file": "viz-data/CT600-007R0005_snp_viz.html", "ready": true}], "nav_docs": [{"label": "Report Guide", "menu": [{"label": "Report Guide", "file": "report-guide.html", "current": false}, {"label": "Metagenomic Screening Guide", "file": "metagenomic-guide.html", "current": false}], "current": false}, {"label": "Pipeline", "file": "pipeline.html", "current": false}, {"label": "File Chart", "file": "file-chart.html", "current": true}]}</script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
 <script>
@@ -95,13 +108,46 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     const divider = document.createElement('div');
     divider.className = 'ribbon-divider';
     wrap.appendChild(divider);
+
+    function closeAllMenus() {
+      document.querySelectorAll('.ribbon-menu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+
     data.nav_docs.forEach(function(d){
-      const a = document.createElement('a');
-      a.textContent = d.label;
-      a.href = d.file;
-      if (d.current) a.className = 'current';
-      wrap.appendChild(a);
+      if (d.menu) {
+        const box = document.createElement('div');
+        box.className = 'ribbon-sample';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ribbon-sample-btn' + (d.current ? ' current' : '');
+        btn.textContent = d.label;
+        const menu = document.createElement('div');
+        menu.className = 'ribbon-menu';
+        d.menu.forEach(function(item){
+          const a = document.createElement('a');
+          a.textContent = item.label;
+          a.href = item.file;
+          if (item.current) a.className = 'current';
+          menu.appendChild(a);
+        });
+        btn.addEventListener('click', function(evt){
+          evt.stopPropagation();
+          const wasOpen = menu.classList.contains('open');
+          closeAllMenus();
+          if (!wasOpen) menu.classList.add('open');
+        });
+        box.appendChild(btn);
+        box.appendChild(menu);
+        wrap.appendChild(box);
+      } else {
+        const a = document.createElement('a');
+        a.textContent = d.label;
+        a.href = d.file;
+        if (d.current) a.className = 'current';
+        wrap.appendChild(a);
+      }
     });
+    document.addEventListener('click', closeAllMenus);
   })();
 
   function escapeHtml(s) {

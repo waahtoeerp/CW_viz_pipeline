@@ -21,6 +21,14 @@ DOCS = [
         "md_file": "docs/report-guide.md",
         "out_file": "report-guide.html",
         "nav_label": "Report Guide",
+        "nav_group": "guides",
+    },
+    {
+        "title": "Understanding Metagenomic Screening",
+        "md_file": "docs/metagenomic-guide.md",
+        "out_file": "metagenomic-guide.html",
+        "nav_label": "Metagenomic Screening Guide",
+        "nav_group": "guides",
     },
     {
         "title": "Pipeline Run Order",
@@ -36,6 +44,34 @@ DOCS = [
     },
 ]
 
+# Doc pages sharing a "nav_group" collapse into one ribbon dropdown, labeled
+# with this title, instead of each getting its own flat ribbon link.
+NAV_GROUPS = {
+    "guides": "Report Guide",
+}
+
+
+def build_nav_docs(current_out_file):
+    """Shared by every page that shows the site ribbon (doc pages here, sample
+    report pages in build_snp_viz.py / build_metagenomic_viz.py). Docs sharing
+    a nav_group collapse into one ribbon dropdown; everything else is a flat
+    link -- see NAV_GROUPS."""
+    grouped = {}
+    nav_docs = []
+    for d in DOCS:
+        is_current = d["out_file"] == current_out_file
+        entry = {"label": d["nav_label"], "file": d["out_file"], "current": is_current}
+        group = d.get("nav_group")
+        if group:
+            if group not in grouped:
+                grouped[group] = {"label": NAV_GROUPS[group], "menu": [], "current": False}
+                nav_docs.append(grouped[group])
+            grouped[group]["menu"].append(entry)
+            grouped[group]["current"] = grouped[group]["current"] or is_current
+        else:
+            nav_docs.append(entry)
+    return nav_docs
+
 
 def build_nav(current_out_file):
     viz_dir = os.path.join(BASE, "viz-data")
@@ -47,11 +83,7 @@ def build_nav(current_out_file):
             "file": f"viz-data/{html_file}",
             "ready": os.path.exists(os.path.join(viz_dir, html_file)),
         })
-    nav_docs = [
-        {"label": d["nav_label"], "file": d["out_file"], "current": d["out_file"] == current_out_file}
-        for d in DOCS
-    ]
-    return nav_samples, nav_docs
+    return nav_samples, build_nav_docs(current_out_file)
 
 
 def render_html(title, markdown_text, nav_samples, nav_docs):
@@ -91,6 +123,19 @@ body { margin: 0; background: var(--page); color: var(--text-primary); font-fami
 .site-ribbon .ribbon-links a.current { background: var(--accent); color: #4a3900; font-weight: bold; }
 .site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
 .site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: var(--border); margin: 4px 2px; }
+.ribbon-sample { position: relative; }
+.ribbon-sample-btn { font: inherit; font-size: 13px; cursor: pointer; border: none; background: none;
+  padding: 6px 14px; border-radius: 999px; color: var(--text-secondary); }
+.ribbon-sample-btn:hover { background: rgba(33,29,22,0.06); }
+.ribbon-sample-btn.current { background: var(--accent); color: #4a3900; font-weight: bold; }
+.ribbon-menu { position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--surface-1);
+  border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(33,29,22,0.14);
+  padding: 6px; min-width: 220px; z-index: 60; display: none; }
+.ribbon-menu.open { display: block; }
+.ribbon-menu a { display: block; text-decoration: none; padding: 8px 12px; border-radius: 8px;
+  font-size: 14px; color: var(--text-primary); }
+.ribbon-menu a:hover { background: rgba(33,29,22,0.06); }
+.ribbon-menu a.current { font-weight: bold; color: #6b5300; background: color-mix(in srgb, var(--accent) 30%, transparent); }
 .page { max-width: 900px; margin: 0 auto; padding: 36px 24px 80px; }
 h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28px; margin: 0 0 4px; }
 .accent-rule { height: 4px; width: 60px; background: var(--accent); margin: 0 0 24px; border-radius: 2px; }
@@ -156,13 +201,46 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     const divider = document.createElement('div');
     divider.className = 'ribbon-divider';
     wrap.appendChild(divider);
+
+    function closeAllMenus() {
+      document.querySelectorAll('.ribbon-menu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+
     data.nav_docs.forEach(function(d){
-      const a = document.createElement('a');
-      a.textContent = d.label;
-      a.href = d.file;
-      if (d.current) a.className = 'current';
-      wrap.appendChild(a);
+      if (d.menu) {
+        const box = document.createElement('div');
+        box.className = 'ribbon-sample';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ribbon-sample-btn' + (d.current ? ' current' : '');
+        btn.textContent = d.label;
+        const menu = document.createElement('div');
+        menu.className = 'ribbon-menu';
+        d.menu.forEach(function(item){
+          const a = document.createElement('a');
+          a.textContent = item.label;
+          a.href = item.file;
+          if (item.current) a.className = 'current';
+          menu.appendChild(a);
+        });
+        btn.addEventListener('click', function(evt){
+          evt.stopPropagation();
+          const wasOpen = menu.classList.contains('open');
+          closeAllMenus();
+          if (!wasOpen) menu.classList.add('open');
+        });
+        box.appendChild(btn);
+        box.appendChild(menu);
+        wrap.appendChild(box);
+      } else {
+        const a = document.createElement('a');
+        a.textContent = d.label;
+        a.href = d.file;
+        if (d.current) a.className = 'current';
+        wrap.appendChild(a);
+      }
     });
+    document.addEventListener('click', closeAllMenus);
   })();
 
   function escapeHtml(s) {
