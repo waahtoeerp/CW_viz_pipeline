@@ -31,8 +31,8 @@ h1 { font-family: var(--font-header); font-weight: 400; font-size: 26px; margin:
 .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px 22px; margin-bottom: 20px; overflow-x: auto; }
 .card h2 { font-family: var(--font-header); font-weight: 400; font-size: 18px; margin: 0 0 4px; }
-.card h3.subhead { font-family: var(--font-header); font-weight: 400; font-size: 14px;
-  color: var(--text-primary); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.card h3.subhead { font-family: var(--font-body); font-weight: bold; font-size: 12px;
+  color: var(--text-primary); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
 .card h3.subhead:first-of-type { margin-top: 4px; }
 .card .desc { color: var(--text-secondary); font-size: 13px; margin: 0 0 16px; max-width: 680px; }
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
@@ -152,6 +152,7 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
       <span class="item"><span class="swatch" style="background:var(--warning)"></span>flagged: low mapping quality</span>
       <span class="item"><span class="swatch" style="background:var(--text-muted)"></span>flagged: low depth</span>
     </div>
+    <div class="filters" id="ideogram-filters"></div>
     <div id="ideogram"></div>
     <p class="callout-note">Hover a tick for details.</p>
   </div>
@@ -166,13 +167,25 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
   <div class="card">
     <h2 id="zoom1-title"></h2>
     <p class="desc" id="zoom1-desc"></p>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--good)"></span>PASS</span>
+      <span class="item"><span class="swatch" style="background:var(--warning)"></span>flagged: low mapping quality</span>
+      <span class="item"><span class="swatch" style="background:var(--text-muted)"></span>flagged: low depth</span>
+    </div>
     <div id="zoom1"></div>
+    <p class="callout-note">Hover a dot for details.</p>
   </div>
 
   <div class="card" id="zoom2-card" style="display:none">
     <h2 id="zoom2-title"></h2>
     <p class="desc" id="zoom2-desc"></p>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--good)"></span>PASS</span>
+      <span class="item"><span class="swatch" style="background:var(--warning)"></span>flagged: low mapping quality</span>
+      <span class="item"><span class="swatch" style="background:var(--text-muted)"></span>flagged: low depth</span>
+    </div>
     <div id="zoom2"></div>
+    <p class="callout-note">Hover a dot for details.</p>
   </div>
 
   <div class="card">
@@ -232,6 +245,16 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     if (filter === 'PASS') return 'good';
     if (filter === 'LowMQ') return 'warning';
     return 'muted';
+  }
+  // bucket() values are also used as CSS class suffixes (pill-good, pill-muted, ...),
+  // where they line up with real class names. They don't line up with real CSS custom
+  // property names, though -- there's no --muted var, only --text-muted -- so any bare
+  // var(--' + bucket(...) + ') was silently resolving to SVG's black fallback instead of
+  // gray. This is the correct one to use for a fill/stroke color.
+  function bucketColor(b) {
+    if (b === 'good') return 'var(--good)';
+    if (b === 'warning') return 'var(--warning)';
+    return 'var(--text-muted)';
   }
   function bucketLabel(filter) {
     if (filter === 'PASS') return 'PASS';
@@ -437,41 +460,74 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     const maxLen = Math.max.apply(null, chrs.map(function(c){ return c.length; }));
     const labelW = 90, rightPad = 60, rowH = 20, topPad = 10;
     const width = 900, plotW = width - labelW - rightPad;
-    const height = topPad + rowH * chrs.length + 24;
-    const svg = elx('svg', {width: '100%', viewBox: '0 0 ' + width + ' ' + height, height: height});
-    container.appendChild(svg);
-    const snpsByChrom = {};
-    data.snps.forEach(function(s){ (snpsByChrom[s.chrom] = snpsByChrom[s.chrom] || []).push(s); });
-    chrs.forEach(function(c, i){
-      const y = topPad + i * rowH + rowH/2;
-      const x2 = labelW + (c.length / maxLen) * plotW;
-      elx('text', {x: 0, y: y+4, class: 'chrom-label'}, svg).textContent = c.label;
-      const countText = elx('text', {x: labelW - 8, y: y+4, class: 'chrom-label', 'text-anchor': 'end'}, svg);
-      countText.textContent = 'n=' + (snpsByChrom[c.name] || []).length;
-      countText.setAttribute('fill', 'var(--text-muted)');
-      elx('line', {x1: labelW, x2: x2, y1: y, y2: y, stroke: 'var(--baseline)', 'stroke-width': 2, 'stroke-linecap': 'round'}, svg);
-      (snpsByChrom[c.name] || []).forEach(function(s){
-        const sx = labelW + (s.pos / c.length) * (x2 - labelW);
-        const b = bucket(s.filter);
-        const line = elx('line', {x1: sx, x2: sx, y1: y-7, y2: y+7, stroke: 'var(--' + b + ')', 'stroke-width': b === 'good' ? 3 : 2}, svg);
-        const hit = elx('rect', {x: sx-6, y: y-10, width: 12, height: 20, fill: 'transparent'}, svg);
-        function onEnter(evt){
-          showTip(evt, [s.chrom + ' : ' + fmt(s.pos, 0), s.ref + ' → ' + s.alt + '   qual ' + s.qual,
-            'depth ' + s.dp + '×   ' + s.gt, bucketLabel(s.filter)]);
-        }
-        [line, hit].forEach(function(n){
-          n.addEventListener('pointerenter', onEnter);
-          n.addEventListener('pointermove', positionTip);
-          n.addEventListener('pointerleave', hideTip);
+
+    function snpMatches(filterKey, s) {
+      if (filterKey === 'all') return true;
+      if (filterKey === 'LowDP') return s.filter.indexOf('LowDP') >= 0;
+      return s.filter === filterKey;
+    }
+
+    function render(filterKey) {
+      container.innerHTML = '';
+      const snps = data.snps.filter(function(s){ return snpMatches(filterKey, s); });
+      const height = topPad + rowH * chrs.length + 24;
+      const svg = elx('svg', {width: '100%', viewBox: '0 0 ' + width + ' ' + height, height: height});
+      container.appendChild(svg);
+      const snpsByChrom = {};
+      snps.forEach(function(s){ (snpsByChrom[s.chrom] = snpsByChrom[s.chrom] || []).push(s); });
+      chrs.forEach(function(c, i){
+        const y = topPad + i * rowH + rowH/2;
+        const x2 = labelW + (c.length / maxLen) * plotW;
+        elx('text', {x: 0, y: y+4, class: 'chrom-label'}, svg).textContent = c.label;
+        const countText = elx('text', {x: labelW - 8, y: y+4, class: 'chrom-label', 'text-anchor': 'end'}, svg);
+        countText.textContent = 'n=' + (snpsByChrom[c.name] || []).length;
+        countText.setAttribute('fill', 'var(--text-muted)');
+        elx('line', {x1: labelW, x2: x2, y1: y, y2: y, stroke: 'var(--baseline)', 'stroke-width': 2, 'stroke-linecap': 'round'}, svg);
+        (snpsByChrom[c.name] || []).forEach(function(s){
+          const sx = labelW + (s.pos / c.length) * (x2 - labelW);
+          const b = bucket(s.filter);
+          const line = elx('line', {x1: sx, x2: sx, y1: y-7, y2: y+7, stroke: bucketColor(b), 'stroke-width': b === 'good' ? 3 : 2}, svg);
+          const hit = elx('rect', {x: sx-6, y: y-10, width: 12, height: 20, fill: 'transparent'}, svg);
+          function onEnter(evt){
+            showTip(evt, [s.chrom + ' : ' + fmt(s.pos, 0), s.ref + ' → ' + s.alt + '   qual ' + s.qual,
+              'depth ' + s.dp + '×   ' + s.gt, bucketLabel(s.filter)]);
+          }
+          [line, hit].forEach(function(n){
+            n.addEventListener('pointerenter', onEnter);
+            n.addEventListener('pointermove', positionTip);
+            n.addEventListener('pointerleave', hideTip);
+          });
         });
       });
+      const axisY = topPad + rowH * chrs.length + 14;
+      [0, 0.25, 0.5, 0.75, 1].forEach(function(f){
+        const x = labelW + f * plotW;
+        elx('text', {x: x, y: axisY, class: 'axis-label', 'text-anchor': f===1 ? 'end' : (f===0?'start':'middle')}, svg)
+          .textContent = fmt(f * maxLen / 1e6, 0) + ' Mb';
+      });
+    }
+
+    const filterBar = document.getElementById('ideogram-filters');
+    const filters = [
+      {key: 'all', label: 'All (' + data.snps.length + ')'},
+      {key: 'PASS', label: 'PASS (' + data.snps.filter(function(s){return s.filter==='PASS';}).length + ')'},
+      {key: 'LowMQ', label: 'Low mapping quality only (' + data.snps.filter(function(s){return s.filter==='LowMQ';}).length + ')'},
+      {key: 'LowDP', label: 'Low depth (' + data.snps.filter(function(s){return s.filter.indexOf('LowDP')>=0;}).length + ')'},
+    ];
+    let active = 'all';
+    filters.forEach(function(f){
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn' + (f.key === active ? ' active' : '');
+      btn.textContent = f.label;
+      btn.addEventListener('click', function(){
+        active = f.key;
+        Array.prototype.forEach.call(filterBar.children, function(b2){ b2.classList.remove('active'); });
+        btn.classList.add('active');
+        render(active);
+      });
+      filterBar.appendChild(btn);
     });
-    const axisY = topPad + rowH * chrs.length + 14;
-    [0, 0.25, 0.5, 0.75, 1].forEach(function(f){
-      const x = labelW + f * plotW;
-      elx('text', {x: x, y: axisY, class: 'axis-label', 'text-anchor': f===1 ? 'end' : (f===0?'start':'middle')}, svg)
-        .textContent = fmt(f * maxLen / 1e6, 0) + ' Mb';
-    });
+    render(active);
   })();
 
   (function coverage(){
@@ -510,7 +566,7 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     const container = document.getElementById(containerId);
     if (!zoom || !zoom.curve || !zoom.curve.length) { container.textContent = 'No depth data in this window.'; return; }
     const width = 900;
-    const margin = {left: 50, right: 20};
+    const margin = {left: 90, right: 20};
     const plotW = width - margin.left - margin.right;
     const depthH = 70, geneH = 16, geneRowGap = 4, tickH = 22, gap = 18;
     const genes = zoom.genes || [];
@@ -518,7 +574,10 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     const x0 = window_[0], x1 = window_[1];
     function X(pos) { return margin.left + ((pos - x0) / (x1 - x0)) * plotW; }
     const geneRows = genes.length;
-    const height = depthH + gap + geneRows * (geneH + geneRowGap) + gap + tickH + 30;
+    // Must match the per-gene advance in the render loop below (geneH + geneRowGap + 12),
+    // not just geneH + geneRowGap -- otherwise the viewBox undershoots and the SNP tick
+    // row / bottom axis labels get pushed outside it.
+    const height = depthH + gap + geneRows * (geneH + geneRowGap + 12) + gap + tickH + 30;
     const svg = elx('svg', {width: '100%', viewBox: '0 0 ' + width + ' ' + height, height: height});
     container.appendChild(svg);
 
@@ -531,7 +590,8 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     dArea += ' L ' + X(curve[curve.length-1][0]) + ' ' + depthH + ' Z';
     elx('path', {d: dArea, fill: 'var(--series-1-wash)', stroke: 'none'}, svg);
     elx('path', {d: dLine, fill: 'none', stroke: 'var(--series-1)', 'stroke-width': 2, 'stroke-linejoin':'round'}, svg);
-    elx('text', {x: margin.left, y: 10, class: 'axis-label'}, svg).textContent = 'depth (max ' + maxDepth.toFixed(1) + '×)';
+    elx('text', {x: margin.left, y: 10, class: 'axis-label'}, svg).textContent = 'max ' + maxDepth.toFixed(1) + '×';
+    elx('text', {x: 0, y: depthH/2 + 4, class: 'chrom-label'}, svg).textContent = 'Depth';
     elx('line', {x1: margin.left, x2: width - margin.right, y1: depthH, y2: depthH, stroke: 'var(--gridline)', 'stroke-width': 1}, svg);
 
     let gy = depthH + gap;
@@ -547,13 +607,14 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
     });
 
     const tickY = gy + 10;
+    elx('text', {x: 0, y: tickY + 4, class: 'chrom-label'}, svg).textContent = 'SNPs';
     elx('line', {x1: margin.left, x2: width - margin.right, y1: tickY, y2: tickY, stroke: 'var(--baseline)', 'stroke-width': 1}, svg);
     const snpsHere = data.snps.filter(function(s){ return s.chrom === zoom.chrom && s.pos >= x0 && s.pos <= x1; });
     snpsHere.forEach(function(s){
       const sx = X(s.pos);
       const b = bucket(s.filter);
       const r = b === 'good' ? 6 : 4.5;
-      const dot = elx('circle', {cx: sx, cy: tickY, r: r, fill: 'var(--' + b + ')', stroke: 'var(--surface-1)', 'stroke-width': 2}, svg);
+      const dot = elx('circle', {cx: sx, cy: tickY, r: r, fill: bucketColor(b), stroke: 'var(--surface-1)', 'stroke-width': 2}, svg);
       const hit = elx('circle', {cx: sx, cy: tickY, r: 14, fill: 'transparent'}, svg);
       function onEnter(evt){
         showTip(evt, [s.chrom + ' : ' + fmt(s.pos, 0), s.ref + ' → ' + s.alt + '   qual ' + s.qual,
@@ -564,10 +625,10 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
         n.addEventListener('pointermove', positionTip);
         n.addEventListener('pointerleave', hideTip);
       });
-      if (b === 'good') elx('text', {x: sx, y: tickY - 14, class: 'axis-label', 'text-anchor': 'middle'}, svg).textContent = 'PASS';
     });
 
     const axisY = height - 6;
+    elx('text', {x: 0, y: axisY, class: 'chrom-label'}, svg).textContent = 'Position';
     [0, 0.5, 1].forEach(function(f){
       const pos = x0 + f * (x1 - x0);
       elx('text', {x: X(pos), y: axisY, class: 'axis-label', 'text-anchor': f===1?'end':(f===0?'start':'middle')}, svg)
