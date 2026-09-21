@@ -94,6 +94,30 @@ def parse_local_depth(path):
     return {chrom: sorted([p, d] for p, d in bins.items()) for chrom, bins in by_chrom.items()}
 
 
+# C. arabica reference GC content, computed once directly from the reference
+# fasta (GCF_036785885.1_Coffea_Arabica_ET-39_HiFi_genomic.fna) on Roihu:
+# 224,740,116 G + 224,548,132 C over 1,198,235,291 ACGT bases = 37.496%.
+# Fixed per reference, not per sample -- recompute only if the reference changes.
+REFERENCE_GC = 0.37496
+
+BWA_ALN_PARAMS = "bwa aln -l 16500 -n 0.01"
+
+
+def parse_signal_funnel(path):
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
+def parse_gc_content(path, sample):
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        all_samples = json.load(f)
+    return all_samples.get(sample)
+
+
 def classify_contigs(contigs):
     chromosomes, organelles, scaffolds = [], [], []
     for c in contigs:
@@ -286,6 +310,9 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
     n_pass = sum(1 for s in snps if s["filter"] == "PASS")
     main_depth = (sum(c["meandepth"] for c in chromosomes) / len(chromosomes)) if chromosomes else 0.0
 
+    signal_funnel = parse_signal_funnel(os.path.join(viz_dir, f"{sample}_signal_funnel.json"))
+    gc = parse_gc_content(os.path.join(viz_dir, "read_gc_content.json"), sample)
+
     metagenomic_dir = os.path.join(os.path.dirname(os.path.abspath(viz_dir)), "metagenomic-data")
 
     nav_samples = []
@@ -329,6 +356,13 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
             "n_snps": len(snps),
             "n_pass": n_pass,
             "mean_depth_main": main_depth,
+        },
+        "qc": {
+            "signal_funnel": signal_funnel,
+            "gc_sample": gc["gc_after"] if gc else None,
+            "reference_gc": REFERENCE_GC,
+            "bwa_aln_params": BWA_ALN_PARAMS,
+            "n_filtered_variants": len(snps),
         },
     }
 
@@ -456,6 +490,14 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
   <div class="accent-rule"></div>
   <div class="stat-row" id="stat-row"></div>
   <div class="banner" id="banner"></div>
+
+  <div class="card" id="qc-card" style="display:none">
+    <h2>Sample QC: where did the reads go?</h2>
+    <p class="desc" id="qc-desc"></p>
+    <div class="stat-row" id="qc-funnel-row"></div>
+    <div class="stat-row" id="qc-gc-row"></div>
+    <p class="callout-note" id="qc-params-note"></p>
+  </div>
 
   <div class="card">
     <h2>Where the SNPs sit across the genome</h2>
@@ -618,6 +660,58 @@ footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
       a.href = d.file;
       wrap.appendChild(a);
     });
+  })();
+
+  (function qc(){
+    const q = data.qc;
+    const sf = q && q.signal_funnel;
+    if (!sf && q.gc_sample == null) return;
+    document.getElementById('qc-card').style.display = '';
+
+    if (sf) {
+      const funnelRow = document.getElementById('qc-funnel-row');
+      const funnelTiles = [
+        {label: 'Raw reads', value: fmt(sf.raw_reads, 0)},
+        {label: 'Mapped (endogenous)', value: fmt(sf.mapped_reads, 0) + '  (' + (sf.mapped_pct_of_raw*100).toFixed(3) + '%)', cls: sf.mapped_pct_of_raw < 0.01 ? 'warn' : ''},
+        {label: 'Unique after dedup', value: fmt(sf.unique_reads, 0), cls: sf.unique_reads < 10000 ? 'warn' : ''},
+        {label: 'Est. library size', value: fmt(sf.estimated_library_size, 0), cls: sf.estimated_library_size < 10000 ? 'warn' : ''},
+        {label: 'Filtered SNPs', value: fmt(q.n_filtered_variants, 0)},
+      ];
+      funnelTiles.forEach(function(t){
+        const tile = document.createElement('div');
+        tile.className = 'stat-tile';
+        const l = document.createElement('div'); l.className = 'label'; l.textContent = t.label;
+        const v = document.createElement('div'); v.className = 'value ' + (t.cls||''); v.textContent = t.value;
+        tile.appendChild(l); tile.appendChild(v);
+        funnelRow.appendChild(tile);
+      });
+    }
+
+    if (q.gc_sample != null) {
+      const gcRow = document.getElementById('qc-gc-row');
+      const diff = (q.gc_sample - q.reference_gc) * 100;
+      const gcTiles = [
+        {label: 'GC content, this sample\\'s reads', value: (q.gc_sample*100).toFixed(1) + '%'},
+        {label: 'GC content, C. arabica reference', value: (q.reference_gc*100).toFixed(1) + '%'},
+        {label: 'Difference', value: (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' pts', cls: Math.abs(diff) > 10 ? 'warn' : ''},
+      ];
+      gcTiles.forEach(function(t){
+        const tile = document.createElement('div');
+        tile.className = 'stat-tile';
+        const l = document.createElement('div'); l.className = 'label'; l.textContent = t.label;
+        const v = document.createElement('div'); v.className = 'value ' + (t.cls||''); v.textContent = t.value;
+        tile.appendChild(l); tile.appendChild(v);
+        gcRow.appendChild(tile);
+      });
+    }
+
+    let desc = 'How many reads made it through each stage, from raw sequencing output to the variants shown below.';
+    if (q.gc_sample != null) {
+      desc += ' A large GC-content gap between the raw reads and the reference is itself a contamination signal — coffee DNA reads should land close to the reference\\'s own GC content, so a big gap points to non-target DNA making up most of the read pool (confirmed directly for this project by metagenomic screening — see the Pipeline doc).';
+    }
+    document.getElementById('qc-desc').textContent = desc;
+    document.getElementById('qc-params-note').textContent =
+      'Alignment: ' + q.bwa_aln_params + ' (bwa aln, not bwa mem — the standard choice for short/damaged aDNA reads; see the Pipeline doc\\'s "bwa aln parameters" section for why).';
   })();
 
   (function stats(){

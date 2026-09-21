@@ -1,0 +1,26 @@
+{
+  "CT600-007R0002": {
+    "gc_before": 0.620388,
+    "gc_after": 0.620108,
+    "reads_before": 222126906,
+    "reads_after": 218170592
+  },
+  "CT600-007R0003": {
+    "gc_before": 0.629523,
+    "gc_after": 0.629352,
+    "reads_before": 213781042,
+    "reads_after": 210203276
+  },
+  "CT600-007R0004": {
+    "gc_before": 0.633752,
+    "gc_after": 0.63356,
+    "reads_before": 222830616,
+    "reads_after": 219084632
+  },
+  "CT600-007R0005": {
+    "gc_before": 0.632916,
+    "gc_after": 0.632722,
+    "reads_before": 220496492,
+    "reads_after": 216883246
+  }
+}
