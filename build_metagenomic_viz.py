@@ -179,6 +179,7 @@ def build_sample(sample, data_dir):
             {"label": "SNP Pipeline", "file": "../pipeline.html"},
             {"label": "Metagenomic Pipeline", "file": "../metagenomic-pipeline.html"},
         ]},
+        {"label": "Damage Signature", "file": "../damage-signature.html"},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 

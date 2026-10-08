@@ -45,6 +45,12 @@ DOCS = [
         "nav_group": "pipelines",
     },
     {
+        "title": "Authentic Ancient-DNA Damage Signature",
+        "md_file": "docs/damage-signature.md",
+        "out_file": "damage-signature.html",
+        "nav_label": "Damage Signature",
+    },
+    {
         "title": "Simple File Chart",
         "md_file": "docs/simple_file_chart.md",
         "out_file": "file-chart.html",
@@ -161,6 +167,8 @@ h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28p
   background: color-mix(in srgb, var(--accent) 18%, transparent); padding: 1px 5px; border-radius: 4px; }
 .markdown-body pre { background: #211d16; color: #f2e9dc; padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
 .markdown-body pre code { background: none; color: inherit; padding: 0; }
+.markdown-body img { max-width: 100%; height: auto; display: block; margin: 16px 0; border-radius: 8px;
+  border: 1px solid var(--gridline); }
 .markdown-body table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 13px; }
 .markdown-body th, .markdown-body td { border: 1px solid var(--gridline); padding: 8px 10px; text-align: left; vertical-align: top; }
 .markdown-body th { background: color-mix(in srgb, var(--accent) 25%, transparent); font-weight: bold; }

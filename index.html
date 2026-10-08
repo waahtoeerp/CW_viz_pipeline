@@ -106,6 +106,31 @@
     color: var(--text-secondary);
     margin: 0 0 16px;
   }
+  .figure-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .figure-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    display: block;
+    margin-bottom: 16px;
+  }
+  .figure-card p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+  }
+  .figure-card .read-more {
+    font-size: 13px;
+    margin: 0;
+  }
   .sample-cluster {
     background: color-mix(in srgb, var(--accent) 14%, var(--bg2));
     border: 1px solid var(--border);
@@ -372,6 +397,7 @@
         <a href="metagenomic-pipeline.html">Metagenomic Pipeline</a>
       </div>
     </div>
+    <a href="damage-signature.html">Damage Signature</a>
     <a href="file-chart.html">File Chart</a>
   </div>
 </nav>
@@ -419,6 +445,14 @@
     </div>
   </div>
 
+  <h2 class="section-title">Authentic Ancient-DNA Damage Signature</h2>
+  <p class="section-subtitle">Direct molecular evidence the recovered coffee DNA is genuinely of historical origin — independent of how little of it survived. See the <a href="damage-signature.html">full write-up</a> for the per-sample numbers and the 5′/3′ asymmetry explanation.</p>
+  <div class="figure-card">
+    <img src="figures/damage_curves_all_samples.png" alt="Ancient-DNA deamination signature, all 4 samples, post-dedup">
+    <p>All 4 samples show the classic aDNA deamination signature: elevated 5′ C→T substitution frequency right at the read terminus (red), decaying to baseline within ~8–10bp. That decaying spike is specific to genuinely ancient, degraded DNA — modern contaminant DNA doesn't show it.</p>
+    <p class="read-more"><a href="damage-signature.html">Read the full write-up →</a></p>
+  </div>
+
   <h2 class="section-title" id="metagenomic-screening">Metagenomic Screening</h2>
   <p class="section-subtitle">Taxonomic classification of sequencing reads against the NCBI reference database, run on the same Vrouw Maria samples. See the <a href="metagenomic-guide.html">Metagenomic Screening guide</a> for why this exists and how it works.</p>
   <p class="results-notice">Preliminary — screened for R0003/R0004 so far; R0002/R0005 pending.</p>
@@ -461,6 +495,10 @@
     </a>
     <a class="sample-card" href="metagenomic-pipeline.html">
       <div class="sample-id">Metagenomic Pipeline Run Order</div>
+      <span class="sample-status">Docs</span>
+    </a>
+    <a class="sample-card" href="damage-signature.html">
+      <div class="sample-id">Authentic Ancient-DNA Damage Signature</div>
       <span class="sample-status">Docs</span>
     </a>
     <a class="sample-card" href="file-chart.html">
