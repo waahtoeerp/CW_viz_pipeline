@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metagenomic Screening Pipeline Run Order — The Coffee Wrecks</title>
+<style>
+:root {
+  --font-header:    'Times New Roman', Times, serif;
+  --font-body:      Arial, Helvetica, sans-serif;
+  --accent:         #fed95e;
+  --surface-1:      #ffffff;
+  --page:           #f2e9dc;
+  --text-primary:   #211d16;
+  --text-secondary: #6b6459;
+  --text-muted:     #8a8073;
+  --gridline:       #e4dbcb;
+  --border:         rgba(33,29,22,0.12);
+  --link:           #7a5f00;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font-family: var(--font-body); }
+.site-ribbon { display: flex; align-items: center; gap: 20px; background: #ffffff;
+  border-bottom: 1px solid var(--border); padding: 8px 24px; position: sticky; top: 0; z-index: 50; }
+.site-ribbon .ribbon-home { display: flex; align-items: center; }
+.site-ribbon .ribbon-home img { height: 32px; width: auto; display: block; }
+.site-ribbon .ribbon-links { display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; }
+.site-ribbon .ribbon-links a { text-decoration: none; padding: 6px 14px; border-radius: 999px; color: var(--text-secondary); }
+.site-ribbon .ribbon-links a:hover { background: rgba(33,29,22,0.06); }
+.site-ribbon .ribbon-links a.current { background: var(--accent); color: #4a3900; font-weight: bold; }
+.site-ribbon .ribbon-links a.pending { pointer-events: none; opacity: 0.5; }
+.site-ribbon .ribbon-divider { width: 1px; align-self: stretch; background: var(--border); margin: 4px 2px; }
+.ribbon-sample { position: relative; }
+.ribbon-sample-btn { font: inherit; font-size: 13px; cursor: pointer; border: none; background: none;
+  padding: 6px 14px; border-radius: 999px; color: var(--text-secondary); }
+.ribbon-sample-btn:hover { background: rgba(33,29,22,0.06); }
+.ribbon-sample-btn.current { background: var(--accent); color: #4a3900; font-weight: bold; }
+.ribbon-menu { position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--surface-1);
+  border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(33,29,22,0.14);
+  padding: 6px; min-width: 220px; z-index: 60; display: none; }
+.ribbon-menu.open { display: block; }
+.ribbon-menu a { display: block; text-decoration: none; padding: 8px 12px; border-radius: 8px;
+  font-size: 14px; color: var(--text-primary); }
+.ribbon-menu a:hover { background: rgba(33,29,22,0.06); }
+.ribbon-menu a.current { font-weight: bold; color: #6b5300; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.page { max-width: 900px; margin: 0 auto; padding: 36px 24px 80px; }
+h1.doc-title { font-family: var(--font-header); font-weight: 400; font-size: 28px; margin: 0 0 4px; }
+.accent-rule { height: 4px; width: 60px; background: var(--accent); margin: 0 0 24px; border-radius: 2px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; overflow-x: auto; }
+.markdown-body h1 { font-family: var(--font-header); font-weight: 400; font-size: 22px; margin: 28px 0 12px; }
+.markdown-body h1:first-child { margin-top: 0; }
+.markdown-body h2 { font-family: var(--font-header); font-weight: 400; font-size: 19px; margin: 26px 0 10px; }
+.markdown-body h3 { font-family: var(--font-header); font-weight: 400; font-size: 16px; margin: 22px 0 8px; }
+.markdown-body p, .markdown-body li { font-size: 14px; line-height: 1.7; color: var(--text-primary); }
+.markdown-body ul, .markdown-body ol { padding-left: 22px; }
+.markdown-body li { margin-bottom: 6px; }
+.markdown-body a { color: var(--link); }
+.markdown-body code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent); padding: 1px 5px; border-radius: 4px; }
+.markdown-body pre { background: #211d16; color: #f2e9dc; padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+.markdown-body pre code { background: none; color: inherit; padding: 0; }
+.markdown-body table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 13px; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--gridline); padding: 8px 10px; text-align: left; vertical-align: top; }
+.markdown-body th { background: color-mix(in srgb, var(--accent) 25%, transparent); font-weight: bold; }
+.markdown-body hr { border: none; border-top: 1px solid var(--gridline); margin: 24px 0; }
+.markdown-body pre.mermaid { background: var(--surface-1); border: 1px solid var(--gridline); padding: 20px; text-align: center; }
+footer.site-footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+footer.site-footer img { width: 273px; height: auto; opacity: 0.85; }
+</style>
+</head>
+<body>
+<nav class="site-ribbon">
+  <a class="ribbon-home" href="index.html" title="Back to front page">
+    <img src="theme/logo-compass.png" alt="The Coffee Wrecks — back to front page">
+  </a>
+  <div class="ribbon-links" id="ribbon-links"></div>
+</nav>
+<div class="page">
+  <h1 class="doc-title">Metagenomic Screening Pipeline Run Order</h1>
+  <div class="accent-rule"></div>
+  <div class="card">
+    <div class="markdown-body" id="markdown-body"></div>
+  </div>
+  <footer class="site-footer">
+    <img src="theme/logo-compass.png" alt="The Coffee Wrecks Project compass mark">
+  </footer>
+</div>
+
+<script type="application/json" id="page-data">{"markdown": "# Metagenomic screening pipeline run order\n\nSource: `CW_metagenomic_screening` (commit `a1c8bcb`), fetched via that repo's\n`dashboard-export/` on 2026-10-08. For the conceptual \"why does this exist\"\nexplanation, see the [Metagenomic Screening guide](metagenomic-guide.html)\ninstead \u2014 this page is the technical run order, mirroring the\n[SNP pipeline](pipeline.html) page's format.\n\n```mermaid\nflowchart TD\n    subgraph CW[\"the_coffee_wrecks (source data)\"]\n        BAM[\"bwa-out/SAMPLE_sorted.bam\nR0003, R0004 -- precise mode\"]\n        FASTQ[\"raw fastq.gz\nR0002, R0005 -- approximate mode\n(BAMs cleaned up earlier; less than 1% mapping\nrate makes raw-read subsample ~equivalent)\"]\n    end\n\n    BAM --> SUB[\"subsample_unmapped.sh\nsamtools view -f 4 | samtools fastq | seqtk sample\n(streamed -- never writes the full\nunmapped set to disk)\"]\n    FASTQ --> SUB\n    SUB --> FQ[\"results/SAMPLE/SAMPLE_subsample.fq.gz\n2,000,000 reads\"]\n\n    FQ --> K1[\"run_kraken2.sh\nvs kraken2_db/ (PlusPF-8, prebuilt)\"]\n    FQ --> K2[\"run_kraken2_coffee.sh\nvs coffee_kraken2_db/\nC. arabica + 2 diploid parents (built here)\"]\n\n    K1 --> R1[\"SAMPLE_kraken2_report.txt\nenvironmental / contamination profile\n~95% unclassified; sediment/soil bacteria\n+ trace human\"]\n    K2 --> R2[\"SAMPLE_kraken2_coffee_report.txt\n559/2M (R0003), 607/2M (R0004)\nclassified as Coffea\"]\n\n    R2 --> EXTRACT[\"extract_coffee_hits.sh\nseqtk subseq on classified read IDs\"]\n    EXTRACT --> HITS[\"SAMPLE_coffee_hits.fq.gz\"]\n    HITS --> ALIGN[\"align_and_mapdamage.sh\nbwa aln -l 16500 -n 0.01\n(same params as base pipeline)\"]\n    ALIGN --> RESULT[\"0/559, 0/607 aligned --\nbelow the 10-read mapDamage floor,\nmapDamage skipped (not just underpowered)\"]\n\n    RESULT --> INVESTIGATE[\"Direct investigation:\nbwa mem re-alignment + NM/MAPQ +\nmanual sequence review\"]\n    INVESTIGATE --> GUESS[\"First pass (39-read subset, same day):\ncalled it microsatellite repeats\"]\n    GUESS -.->|corrected, commit 8c5479c| RECHECK[\"Full 559+607 set re-aligned w/ bwa mem,\nchain-clustered by position,\nreference pulled at each cluster\n(samtools faidx) and read directly\"]\n    RECHECK --> RRNA[\"10 of 12 largest clusters = bacterial 16S\nrRNA (27F/515F primer motifs),\nduplicated across several coffee\nchromosomes + the mitochondrial contig\nin the reference assembly itself\"]\n    RRNA --> CONCLUSION[\"Conclusion unchanged: still 0 aligned,\nno recoverable coffee signal --\nmechanism now verified, not guessed\"]\n\n    style R1 fill:#3a5a78,color:#fff,stroke:#2a4257\n    style R2 fill:#1a7f1a,color:#fff,stroke:#145914\n    style RESULT fill:#b8482f,color:#fff,stroke:#8f3722\n    style GUESS fill:#888,color:#fff,stroke:#666,stroke-dasharray: 5 5\n    style RRNA fill:#1a7f1a,color:#fff,stroke:#145914\n    style CONCLUSION fill:#1a7f1a,color:#fff,stroke:#145914\n```\n\n| # | Script | Reads | Writes | Notes |\n|---|--------|-------|--------|-------|\n| 1 | `download_kraken2_db.sh` | \u2014 | `kraken2_db/` (PlusPF-8, ~5.5GB compressed) | One-time, run directly on the Roihu login node. |\n| 2 | `download_coffee_taxonomy.sh` | \u2014 | NCBI taxonomy files for the coffee-specific DB build | One-time, feeds row 3. |\n| 3 | `build_coffee_kraken2_db.sh` | *C. arabica* + *C. canephora* + *C. eugenioides* genomes | `coffee_kraken2_db/` | One-time. The two diploid parent species are included alongside the target since arabica is a natural hybrid of the two. |\n| 4 | `subsample_unmapped.sh <SAMPLE>` | `the_coffee_wrecks/bwa-out/${SAMPLE}_sorted.bam` (precise mode, R0003/R0004) or raw `fastq.gz` (approximate mode, R0002/R0005 \u2014 BAMs already cleaned up by then, but statistically equivalent given <1% mapping rate) | `results/${SAMPLE}/${SAMPLE}_subsample.fq.gz` (2,000,000 reads) | Streamed throughout (`samtools view -f 4 \\| samtools fastq \\| seqtk sample`) \u2014 never materializes the full unmapped read set on disk. |\n| 5 | `run_kraken2.sh <SAMPLE>` | Row 4's subsample, `kraken2_db/` | `${SAMPLE}_kraken2_report.txt` | The broad/contamination pass. ~95% unclassified for both samples checked; of the ~5% classified, dominated by sediment/soil/groundwater bacteria plus a trace (0.14\u20130.18%) of human DNA (normal handling contamination). |\n| 6 | `run_kraken2_coffee.sh <SAMPLE>` | Row 4's subsample, `coffee_kraken2_db/` | `${SAMPLE}_kraken2_coffee_report.txt` | The direct coffee-match check \u2014 same subsample, dedicated 3-genome database. 559/2,000,000 (R0003, 0.028%) and 607/2,000,000 (R0004, 0.030%) classify somewhere under *Coffea*. |\n| 7 | `extract_coffee_hits.sh <SAMPLE>` | Row 6's classified read IDs | `${SAMPLE}_coffee_hits.fq.gz` | `seqtk subseq`. |\n| 8 | `align_and_mapdamage.sh <SAMPLE>` | Row 7's hits | Alignment result + mapDamage (if \u226510 reads align) | Same `bwa aln -l 16500 -n 0.01` parameters as the base pipeline. 0/559 and 0/607 actually aligned \u2014 below the 10-read mapDamage floor, so mapDamage is skipped outright, not just underpowered. |\n| 9 | `run_screening.sh [SAMPLE...]` | \u2014 | Orchestrates rows 4\u20138 as an sbatch dependency chain per sample | Mirrors `the_coffee_wrecks/run_pipeline.sh`'s pattern. Defaults to all 4 samples if none given. |\n| \u2014 | *Manual follow-up (not yet scripted)* | Row 8's 0-aligned result | `CW_metagenomic_screening/LABDIARY.md` entry, `coffee_hit_repeat_regions.json` | Re-aligned the full classified set (not a subsample) with `bwa mem` (soft-clip tolerant, unlike the pipeline's own `bwa aln`), chain-clustered by genomic position (\u2264500bp between neighbors), then pulled the reference sequence at each of the 12 largest clusters directly (`samtools faidx`) and read it by eye. 10 of 12 are unambiguous bacterial 16S rRNA gene fragments \u2014 e.g. the `NC_092313.1:77046430` cluster opens with `AGAGTTTGATCCTGGCTCAG`, the universal bacterial 27F primer sequence. Superseded a same-day first guess (microsatellite repeats, from eyeballing only a 39-read subset) \u2014 see commit `8c5479c`. Run by hand on Roihu; would need re-running manually for future samples. |\n\n## What this answers\n\n**Question:** does the base pipeline's alignment step throw away real, recoverable ancient coffee DNA among the >99% of reads that don't map to *C. arabica*?\n\n**Answer: no \u2014 the exclusion is correct.** The unmapped fraction is dominated by environmental/soil bacteria, and the small slice that superficially classifies as *Coffea* resolves to a conserved bacterial 16S rRNA region duplicated inside the reference assembly itself (plausibly contamination carried into the draft assembly, or a NUMT-like nuclear copy \u2014 not confirmed which), not missed coffee signal. An ordinary environmental-bacteria read can pick up a stray \"Coffea\" k-mer hit purely from matching that shared conserved region.\n\n## Known open issues (not fixed in this pass)\n- R0002/R0005 haven't been screened yet (per `CW_viz_pipeline/index.html`'s Metagenomic Screening section) \u2014 only R0003/R0004 have results as of this doc.\n- The manual follow-up investigation (table row above) isn't scripted \u2014 re-running it for new samples means repeating the `bwa mem` + `samtools faidx` steps by hand on Roihu.\n- This page is built from a point-in-time export (`dashboard-export/screening_summary.json`, `CW_metagenomic_screening` commit `a1c8bcb`), not a live sync \u2014 re-fetch from that repo if its findings change.\n", "nav_samples": [{"id": "CT600-007R0002", "file": "viz-data/CT600-007R0002_snp_viz.html", "ready": true}, {"id": "CT600-007R0003", "file": "viz-data/CT600-007R0003_snp_viz.html", "ready": true}, {"id": "CT600-007R0004", "file": "viz-data/CT600-007R0004_snp_viz.html", "ready": true}, {"id": "CT600-007R0005", "file": "viz-data/CT600-007R0005_snp_viz.html", "ready": true}], "nav_docs": [{"label": "Report Guide", "menu": [{"label": "Report Guide", "file": "report-guide.html", "current": false}, {"label": "Metagenomic Screening Guide", "file": "metagenomic-guide.html", "current": false}], "current": false}, {"label": "Pipeline", "menu": [{"label": "SNP Pipeline", "file": "pipeline.html", "current": false}, {"label": "Metagenomic Pipeline", "file": "metagenomic-pipeline.html", "current": true}], "current": true}, {"label": "File Chart", "file": "file-chart.html", "current": false}]}</script>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+(function(){
+  const data = JSON.parse(document.getElementById('page-data').textContent);
+
+  (function ribbon(){
+    const wrap = document.getElementById('ribbon-links');
+    const home = document.createElement('a');
+    home.href = 'index.html';
+    home.textContent = 'Front page';
+    wrap.appendChild(home);
+    data.nav_samples.forEach(function(s){
+      const a = document.createElement('a');
+      a.textContent = s.id;
+      if (s.ready) { a.href = s.file; } else { a.className = 'pending'; a.href = '#'; }
+      wrap.appendChild(a);
+    });
+    const divider = document.createElement('div');
+    divider.className = 'ribbon-divider';
+    wrap.appendChild(divider);
+
+    function closeAllMenus() {
+      document.querySelectorAll('.ribbon-menu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+
+    data.nav_docs.forEach(function(d){
+      if (d.menu) {
+        const box = document.createElement('div');
+        box.className = 'ribbon-sample';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ribbon-sample-btn' + (d.current ? ' current' : '');
+        btn.textContent = d.label;
+        const menu = document.createElement('div');
+        menu.className = 'ribbon-menu';
+        d.menu.forEach(function(item){
+          const a = document.createElement('a');
+          a.textContent = item.label;
+          a.href = item.file;
+          if (item.current) a.className = 'current';
+          menu.appendChild(a);
+        });
+        btn.addEventListener('click', function(evt){
+          evt.stopPropagation();
+          const wasOpen = menu.classList.contains('open');
+          closeAllMenus();
+          if (!wasOpen) menu.classList.add('open');
+        });
+        box.appendChild(btn);
+        box.appendChild(menu);
+        wrap.appendChild(box);
+      } else {
+        const a = document.createElement('a');
+        a.textContent = d.label;
+        a.href = d.file;
+        if (d.current) a.className = 'current';
+        wrap.appendChild(a);
+      }
+    });
+    document.addEventListener('click', closeAllMenus);
+  })();
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  const renderer = new marked.Renderer();
+  const originalCode = renderer.code.bind(renderer);
+  renderer.code = function(code, infostring) {
+    if ((infostring || '').trim() === 'mermaid') {
+      return '<pre class="mermaid">' + escapeHtml(code) + '</pre>';
+    }
+    return originalCode(code, infostring);
+  };
+  marked.use({ renderer: renderer });
+
+  document.getElementById('markdown-body').innerHTML = marked.parse(data.markdown);
+
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+  mermaid.run({ querySelector: '.mermaid' });
+})();
+</script>
+</body>
+</html>

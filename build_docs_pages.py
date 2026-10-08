@@ -31,10 +31,18 @@ DOCS = [
         "nav_group": "guides",
     },
     {
-        "title": "Pipeline Run Order",
+        "title": "SNP Pipeline Run Order",
         "md_file": "docs/PIPELINE.md",
         "out_file": "pipeline.html",
-        "nav_label": "Pipeline",
+        "nav_label": "SNP Pipeline",
+        "nav_group": "pipelines",
+    },
+    {
+        "title": "Metagenomic Screening Pipeline Run Order",
+        "md_file": "docs/metagenomic-pipeline.md",
+        "out_file": "metagenomic-pipeline.html",
+        "nav_label": "Metagenomic Pipeline",
+        "nav_group": "pipelines",
     },
     {
         "title": "Simple File Chart",
@@ -48,6 +56,7 @@ DOCS = [
 # with this title, instead of each getting its own flat ribbon link.
 NAV_GROUPS = {
     "guides": "Report Guide",
+    "pipelines": "Pipeline",
 }
 
 

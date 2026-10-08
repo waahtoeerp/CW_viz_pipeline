@@ -175,7 +175,10 @@ def build_sample(sample, data_dir):
             {"label": "Understanding the Sample Report", "file": "../report-guide.html"},
             {"label": "Understanding Metagenomic Screening", "file": "../metagenomic-guide.html"},
         ]},
-        {"label": "Pipeline", "file": "../pipeline.html"},
+        {"label": "Pipeline", "menu": [
+            {"label": "SNP Pipeline", "file": "../pipeline.html"},
+            {"label": "Metagenomic Pipeline", "file": "../metagenomic-pipeline.html"},
+        ]},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 
