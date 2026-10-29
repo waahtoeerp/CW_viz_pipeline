@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img" aria-label="DNA fragment with a single-stranded 5 prime overhang containing a deaminated cytosine">
+<rect width="1000" height="300" fill="#ffffff"/>
+<rect x="30" y="30" width="940" height="250" rx="12" fill="#ffffff" stroke="#d9cdb8"/>
+<text x="60" y="70" font-family="Times New Roman, serif" font-size="20" font-weight="bold" fill="#3a3026" text-anchor="start">1  DNA fragment</text>
+<rect x="90" y="100" width="52" height="52" rx="6" fill="#f4c7bd" stroke="#c0392b" stroke-width="4"/>
+<text x="116.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">U</text>
+<rect x="152" y="100" width="52" height="52" rx="6" fill="#b5c98a"/>
+<text x="178.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="214" y="100" width="52" height="52" rx="6" fill="#fed95e"/>
+<text x="240.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="276" y="100" width="52" height="52" rx="6" fill="#c4a7d8"/>
+<text x="302.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="338" y="100" width="52" height="52" rx="6" fill="#8fb3c4"/>
+<text x="364.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<rect x="400" y="100" width="52" height="52" rx="6" fill="#fed95e"/>
+<text x="426.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="462" y="100" width="52" height="52" rx="6" fill="#b5c98a"/>
+<text x="488.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="524" y="100" width="52" height="52" rx="6" fill="#b5c98a"/>
+<text x="550.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="586" y="100" width="52" height="52" rx="6" fill="#c4a7d8"/>
+<text x="612.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="648" y="100" width="52" height="52" rx="6" fill="#fed95e"/>
+<text x="674.0" y="136.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<line x1="235.0" y1="152" x2="235.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="245.0" y1="152" x2="245.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="214" y="200" width="52" height="52" rx="6" fill="#c4a7d8"/>
+<text x="240.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<line x1="297.0" y1="152" x2="297.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="307.0" y1="152" x2="307.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="276" y="200" width="52" height="52" rx="6" fill="#fed95e"/>
+<text x="302.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<line x1="354.0" y1="152" x2="354.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="364.0" y1="152" x2="364.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="374.0" y1="152" x2="374.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="338" y="200" width="52" height="52" rx="6" fill="#b5c98a"/>
+<text x="364.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<line x1="421.0" y1="152" x2="421.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="431.0" y1="152" x2="431.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="400" y="200" width="52" height="52" rx="6" fill="#c4a7d8"/>
+<text x="426.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<line x1="478.0" y1="152" x2="478.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="488.0" y1="152" x2="488.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="498.0" y1="152" x2="498.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="462" y="200" width="52" height="52" rx="6" fill="#8fb3c4"/>
+<text x="488.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<line x1="540.0" y1="152" x2="540.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="550.0" y1="152" x2="550.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="560.0" y1="152" x2="560.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="524" y="200" width="52" height="52" rx="6" fill="#8fb3c4"/>
+<text x="550.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<line x1="607.0" y1="152" x2="607.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="617.0" y1="152" x2="617.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="586" y="200" width="52" height="52" rx="6" fill="#fed95e"/>
+<text x="612.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<line x1="669.0" y1="152" x2="669.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<line x1="679.0" y1="152" x2="679.0" y2="200" stroke="#3a3026" stroke-width="2.5"/>
+<rect x="648" y="200" width="52" height="52" rx="6" fill="#c4a7d8"/>
+<text x="674.0" y="236.0" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<text x="147.0" y="166" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#6b5f52" text-anchor="middle">single-stranded</text>
+<text x="147.0" y="184" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#6b5f52" text-anchor="middle">overhang</text>
+<text x="40" y="135" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#6b5f52" text-anchor="start">5′</text>
+<text x="730" y="135" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#6b5f52" text-anchor="start">3′</text>
+<text x="40" y="245" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#6b5f52" text-anchor="start">3′</text>
+<text x="730" y="245" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#6b5f52" text-anchor="start">5′</text>
+</svg>
