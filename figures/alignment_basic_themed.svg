@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 740" width="1000" height="740" role="img" aria-label="Shotgun reads aligned to a reference genome">
+<rect width="1000" height="740" fill="#f2e9dc"/>
+<text x="30" y="46" font-family="Times New Roman, serif" font-size="26" font-weight="bold" fill="#3a3026">How shotgun reads align to a reference genome</text>
+<rect x="30" y="72" width="940" height="640" rx="12" fill="#ffffff" stroke="#d9cdb8"/>
+<text x="60" y="118" font-family="Times New Roman, serif" font-size="18" font-weight="bold" fill="#3a3026" text-anchor="start">Reference genome</text>
+<rect x="90" y="130" width="84" height="84" rx="6" fill="#fed95e"/>
+<text x="132.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="190" y="130" width="84" height="84" rx="6" fill="#8fb3c4"/>
+<text x="232.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<rect x="290" y="130" width="84" height="84" rx="6" fill="#fed95e"/>
+<text x="332.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="390" y="130" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="432.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="490" y="130" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="532.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="590" y="130" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="632.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="690" y="130" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="732.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="790" y="130" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="832.0" y="186.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<line x1="60" y1="254" x2="940" y2="254" stroke="#a6a6a6" stroke-width="6" stroke-dasharray="40 14"/>
+<text x="60" y="290" font-family="Times New Roman, serif" font-size="18" font-weight="bold" fill="#3a3026" text-anchor="start">Shotgun reads, aligned to the reference</text>
+<rect x="90" y="300" width="84" height="84" rx="6" fill="#fed95e"/>
+<text x="132.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="190" y="300" width="84" height="84" rx="6" fill="#8fb3c4"/>
+<text x="232.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<rect x="290" y="300" width="84" height="84" rx="6" fill="#fed95e"/>
+<text x="332.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="390" y="300" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="432.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="490" y="300" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="532.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="590" y="300" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="632.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="690" y="300" width="84" height="84" rx="6" fill="#8fb3c4" stroke="#c0392b" stroke-width="4"/>
+<text x="732.0" y="356.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<rect x="90" y="400" width="84" height="84" rx="6" fill="#fed95e"/>
+<text x="132.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="190" y="400" width="84" height="84" rx="6" fill="#8fb3c4"/>
+<text x="232.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<rect x="290" y="400" width="84" height="84" rx="6" fill="#fed95e"/>
+<text x="332.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">A</text>
+<rect x="490" y="400" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="532.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="590" y="400" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="632.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="690" y="400" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="732.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="790" y="400" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="832.0" y="456.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="390" y="500" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="432.0" y="556.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="490" y="500" width="84" height="84" rx="6" fill="#b5c98a"/>
+<text x="532.0" y="556.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">G</text>
+<rect x="590" y="500" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="632.0" y="556.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="690" y="500" width="84" height="84" rx="6" fill="#8fb3c4" stroke="#c0392b" stroke-width="4"/>
+<text x="732.0" y="556.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">C</text>
+<rect x="790" y="500" width="84" height="84" rx="6" fill="#c4a7d8"/>
+<text x="832.0" y="556.0" font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#3a3026" text-anchor="middle">T</text>
+<rect x="60" y="590" width="22" height="22" rx="4" fill="none" stroke="#c0392b" stroke-width="4"/>
+<text x="94" y="606" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#3a3026" text-anchor="start">Mismatch: the read has a different base here</text>
+<rect x="60" y="624" width="22" height="22" rx="4" fill="#f2e9dc" stroke="#d9cdb8"/>
+<text x="94" y="640" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#3a3026" text-anchor="start">Gap: the read has no base here</text>
+<text x="60" y="680" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill="#6b5f52" text-anchor="start">Same letter = same base. Each read is placed where its letters match the reference.</text>
+</svg>

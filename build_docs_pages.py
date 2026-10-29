@@ -51,6 +51,12 @@ DOCS = [
         "nav_label": "Damage Signature",
     },
     {
+        "title": "Aligning Reads to a Reference Genome",
+        "md_file": "docs/theory.md",
+        "out_file": "theory.html",
+        "nav_label": "Theory",
+    },
+    {
         "title": "Simple File Chart",
         "md_file": "docs/simple_file_chart.md",
         "out_file": "file-chart.html",

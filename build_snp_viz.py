@@ -403,6 +403,7 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
             {"label": "Metagenomic Pipeline", "file": "../metagenomic-pipeline.html"},
         ]},
         {"label": "Damage Signature", "file": "../damage-signature.html"},
+        {"label": "Theory", "file": "../theory.html"},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 

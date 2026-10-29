@@ -180,6 +180,7 @@ def build_sample(sample, data_dir):
             {"label": "Metagenomic Pipeline", "file": "../metagenomic-pipeline.html"},
         ]},
         {"label": "Damage Signature", "file": "../damage-signature.html"},
+        {"label": "Theory", "file": "../theory.html"},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 
