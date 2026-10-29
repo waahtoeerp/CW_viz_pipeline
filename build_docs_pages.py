@@ -57,6 +57,12 @@ DOCS = [
         "nav_label": "Theory",
     },
     {
+        "title": "Photos",
+        "md_file": "docs/photos.md",
+        "out_file": "photos.html",
+        "nav_label": "Photos",
+    },
+    {
         "title": "Simple File Chart",
         "md_file": "docs/simple_file_chart.md",
         "out_file": "file-chart.html",

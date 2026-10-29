@@ -404,6 +404,7 @@ def build_sample(sample, viz_dir, no_network, out_override=None):
         ]},
         {"label": "Damage Signature", "file": "../damage-signature.html"},
         {"label": "Theory", "file": "../theory.html"},
+        {"label": "Photos", "file": "../photos.html"},
         {"label": "File Chart", "file": "../file-chart.html"},
     ]
 
